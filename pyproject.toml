@@ -1,0 +1,9 @@
+[project]
+name = "calibration-ltown"
+version = "0.1.0"
+description = "Calibration d'un modèle hydraulique de L-Town à partir d'une année de mesures"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
