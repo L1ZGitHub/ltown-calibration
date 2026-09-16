@@ -83,11 +83,16 @@ contre le trop-plein : il faut le réancrer sur son capteur. Enfin, la consommat
 grande zone est directement **mesurée** par différence entre les débitmètres : aucun modèle de
 demande ne bat une mesure.
 
-Restent deux paramètres que l'on croit calibrables et qui ne le sont pas ici — la section du
-réservoir, indissociable de la consommation non comptée de la zone qu'elle alimente, et les
-rugosités, dans un réseau où la conduite médiane perd quatre millimètres de charge. Le carnet
-établit les deux par une mesure directe, sans lancer d'optimisation, puis vérifie sur une fenêtre
-de transfert ce qu'un ajustement de rugosité a réellement appris.
+Restent deux paramètres que l'on croit calibrables. Les **rugosités** ne donnent presque aucune
+prise dans un réseau où la conduite médiane perd quatre millimètres de charge : ajustées, elles
+retirent du biais et ne touchent pas à la dynamique, ce qu'une fenêtre de transfert et une
+évaluation sur l'année entière montrent chacune à leur manière. La **section du réservoir**, elle,
+demande deux passes : le bilan volumique par demi-cycle de pompe paraît la mesurer mais confond
+en réalité la section et la consommation de la zone alimentée (colinéaires à 0,997) ; simuler la
+trajectoire du niveau au lieu de régresser des demi-cycles lève l'ambiguïté — à condition de
+choisir une fenêtre où le réservoir ne sature pas, faute de quoi le critère devient monotone et
+désigne le bord de la grille. Le résultat reste négatif, pour une raison différente de celle
+qu'on attendait : une fois le niveau réancré sur son capteur, la section n'a plus d'effet.
 
 Chaque levier est pris seul, puis cumulé, et le **biais** est à chaque fois séparé de la
 **dispersion**. La distinction décide de la lecture : un biais constant s'annule dans toute
@@ -134,9 +139,16 @@ mêmes variantes évaluées sur les **105 120 pas de l'année 2018**, aux 33 cap
 | + modèle de demande | +0,302 | 0,361 | 0,470 |
 | + pompe mesurée, réancrage quotidien du réservoir | +0,272 | 0,266 | 0,380 |
 | + niveau de demande par bilan de masse | +0,148 | 0,221 | 0,266 |
-| + réancrage toutes les 6 h | +0,122 | 0,158 | **0,199 m** |
+| + réancrage toutes les 6 h | +0,122 | 0,158 | 0,199 m |
+| + six rugosités ajustées sur la **seule semaine 1** | +0,018 | 0,157 | **0,158 m** |
 
-**−60 % de RMSE, −59 % de dispersion.** Trois remarques de lecture :
+**−68 % de RMSE, −60 % de dispersion.** Quatre remarques de lecture :
+
+* **la calibration de rugosité tient sur l'année, mais seulement sur la RMSE.** Six coefficients
+  réglés sur une semaine de janvier retirent le biais de 12 cm sur les douze mois et laissent la
+  dispersion inchangée à un demi pour cent près (0,1578 → 0,1573). Les écarts de ±13 à ±28 % que
+  montre le tableau de transfert sur des fenêtres de sept jours se compensent sur l'année :
+  c'était du bruit d'ajustement, ni gain ni perte ;
 
 * la dispersion suit la RMSE ici, ce qui n'allait pas de soi — les deux leviers qui n'agissaient
   que sur le biais sur une semaine (bilan de masse, rugosité) ne portent pas ce résultat ;
