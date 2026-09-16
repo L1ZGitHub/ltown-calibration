@@ -18,6 +18,10 @@ Deux carnets y répondent.
 | `notebooks/01_calibration_under_pressure.ipynb` | La méthode de référence, reproduite pas à pas : modèle de demande en produit d'effets, mélange de types de consommateurs, six groupes de rugosité ajustés par Levenberg-Marquardt. |
 | `notebooks/02_ameliorations.ipynb` | Quatre leviers que cette méthode laisse de côté, tous lus dans les capteurs : l'état réel de la pompe, l'ancrage du niveau du réservoir, sa section réelle, et le niveau de demande donné par le bilan de masse. |
 
+Deux documents accompagnent le code : [`GUIDE.md`](GUIDE.md) explique le travail dans l'ordre où
+il a été fait, code à l'appui, et se lit d'une traite ; [`CORRECTIONS.md`](CORRECTIONS.md) liste
+les endroits où le texte des carnets demande à être repris.
+
 ## Démarrage
 
 ```bash
