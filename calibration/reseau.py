@@ -81,6 +81,41 @@ def charger_pressions(annee: int) -> pd.DataFrame:
     return charger_scada(annee, "Pressures")[capteurs()["pressure"]]
 
 
+def charger_fuites(annee: int) -> pd.DataFrame | None:
+    """Les débits de fuite pas par pas, en m³/h — **une clé de lecture, jamais une entrée**.
+
+    Le jeu de données publie les fuites qu'il contient. Elles ne doivent servir à aucun calcul de
+    calibration : on s'en sert uniquement pour **dire ce qu'une fenêtre contient**, ce qui change
+    radicalement la lecture d'un ajustement. Une fuite et un excès de friction produisent le même
+    effet — une baisse de pression en aval — et un optimiseur qui n'a que la rugosité sous la main
+    paiera la fuite avec de la rugosité.
+
+    Renvoie `None` si le fichier n'est pas fourni : tout le reste du dépôt fonctionne sans lui.
+    """
+    f = DONNEES / f"{annee}_Leakages.csv"
+    if not f.exists():
+        return None
+    return pd.read_csv(f, sep=";", decimal=",", index_col=0, parse_dates=True)
+
+
+def charge_de_fuite(annee: int, debut: int = 0, n_pas: int = PAS_AN) -> dict | None:
+    """Ce qu'une fenêtre porte comme fuite : débit moyen, nombre de fuites vives, part de la conso.
+
+    À afficher à côté de tout ajustement et de tout transfert. Sur 2018, les fenêtres employées
+    dans les carnets vont de **0 m³/h** (la première semaine de janvier) à **34 m³/h** (octobre,
+    soit un cinquième de la consommation de la zone A+B) : comparer un réglage fait sur l'une à un
+    transfert évalué sur l'autre compare deux régimes, pas deux saisons.
+    """
+    lk = charger_fuites(annee)
+    if lk is None:
+        return None
+    t = lk.to_numpy()[debut:debut + n_pas]
+    debit = float(t.sum(axis=1).mean())
+    return {"debit_m3h": debit,
+            "fuites_vives": float((t > 0.01).sum(axis=1).mean()),
+            "part_conso_ab": debit / 175.0}
+
+
 def capteurs() -> dict[str, list[str]]:
     """Listes officielles du fichier de configuration : pression (33), débit (3), niveau (1)."""
     cfg = yaml.safe_load(CONFIG.read_text())
@@ -253,7 +288,8 @@ def simuler(D, noeuds, n_pas: int, extraire, *, tranche_jours: float = 7,
     330 Mo en float32, une année aux 33 capteurs en pèse 14. Ne jamais renvoyer `res`.
 
     Le report d'état entre tranches — niveau de T1 et statut de la pompe au dernier pas — a été
-    contrôlé : deux tranches de 24 h donnent les mêmes pressions que 48 h d'affilée à 1e-3 m près.
+    contrôlé : deux tranches de 12 h donnent les mêmes pressions que 24 h d'affilée à 1e-3 m près
+    (`test_report_detat_entre_tranches`).
 
     `niveau_mesure` fait repartir chaque tranche du niveau **lu au capteur** plutôt que du niveau
     simulé. C'est indispensable dès que `pompe` est imposé : la pompe ne suivant plus de consigne
