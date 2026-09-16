@@ -1,23 +1,36 @@
-"""Calibration des rugosités par groupes de conduites, au sens de Levenberg-Marquardt.
+"""Calibration des rugosités par groupes de conduites.
 
 L-Town compte 905 conduites. Les calibrer une par une n'a pas de sens : elles n'entrent dans les
 équations que par leur résistance
 
     R = 10,674 · L / (C^1,852 · D^4,871)
 
-et l'on ne dispose que de 33 capteurs de pression. La méthode retenue par l'équipe « Under
-Pressure » est donc de **regrouper** les conduites — six groupes — et d'ajuster six facteurs
-multiplicatifs sur le coefficient de Hazen-Williams, par moindres carrés non linéaires
-(Levenberg-Marquardt).
+et l'on ne dispose que de 33 capteurs de pression. La méthode de référence les **regroupe** —
+conduites de même matériau, âge, diamètre et conditions hydrauliques — et n'ajuste qu'un
+coefficient de Hazen-Williams par groupe.
 
-Deux détails d'implémentation qui comptent :
+Le critère qu'elle minimise n'est pas une somme de carrés ordinaire. C'est un moindres carrés
+pondéré, **sous contraintes de boîte**, avec fonction de perte de **Huber** et **régularisation
+de Tikhonov** vers la valeur initiale du fichier de réseau :
 
-* les facteurs sont paramétrés en **logarithme**, ce qui les maintient strictement positifs sans
-  imposer de bornes — Levenberg-Marquardt, contrairement à une région de confiance, n'en accepte
-  pas ;
-* le vecteur de résidus est **sous-échantillonné à l'heure**. Une fenêtre de trois jours donne
-  alors 72 × 33 = 2 376 résidus pour six paramètres, ce qui est déjà très largement surdéterminé,
-  et chaque évaluation coûte une simulation complète.
+    min_{x_L ≤ x ≤ x_U}  ½ Σ_j Σ_i H_κ( ([S·y(t_j, x)]_i − z_i^j) / σ_ij )  +  α ‖x − x_0‖²
+
+Ces trois ingrédients ne sont pas décoratifs, et `ajuster` les reproduit tous les trois :
+
+* les **bornes** interdisent les coefficients qu'aucune conduite réelle ne porterait ;
+* la **perte de Huber** empêche quelques pas de temps aberrants de gouverner l'ajustement ;
+* la **régularisation** retient l'estimateur près du modèle livré là où les données ne
+  contraignent rien — et sur ce réseau, elles ne contraignent presque rien.
+
+Retirer les trois est instructif : l'optimiseur part alors chercher des coefficients multipliés
+par une trentaine, améliore la fenêtre d'ajustement et dégrade tout le reste. C'est mesuré dans
+le second carnet.
+
+Deux détails d'implémentation. Le vecteur de résidus est **sous-échantillonné à l'heure** : une
+fenêtre de trois jours donne déjà 72 × 33 = 2 376 résidus pour six paramètres, et chaque
+évaluation coûte une simulation complète. Et le solveur employé est une **région de confiance
+réfléchissante** plutôt que Levenberg-Marquardt au sens strict : ce dernier n'accepte pas de
+bornes, alors que le critère ci-dessus en pose.
 """
 from __future__ import annotations
 
@@ -32,54 +45,116 @@ from . import reseau as R
 
 
 def facteurs_par_conduite(groupes: dict[str, str], valeurs: dict[str, float]) -> dict[str, float]:
-    """Traduit {groupe: facteur} en {conduite: facteur}, la forme attendue par `reseau.preparer`."""
+    """Traduit {groupe: facteur} en {conduite: facteur} — pour le balayage à un seul paramètre."""
     return {p: float(valeurs[g]) for p, g in groupes.items() if g in valeurs}
 
 
-def residus(simule: np.ndarray, mesure: np.ndarray, sous_ech: int = 12) -> np.ndarray:
-    """Vecteur de résidus aplati, sous-échantillonné d'un facteur `sous_ech` (12 pas = 1 heure)."""
+def coefficients_par_conduite(groupes: dict[str, str], valeurs: dict[str, float]) -> dict[str, float]:
+    """Traduit {groupe: coefficient} en {conduite: coefficient} — la forme de la référence.
+
+    La calibration de référence estime des coefficients de Hazen-Williams **absolus**, bornés
+    entre 60 et 160, et non des facteurs multiplicatifs. La différence n'est pas cosmétique : un
+    facteur unique appliqué à un groupe qui mélange plusieurs coefficients d'origine ne peut pas
+    les amener tous à la même valeur, alors que c'est exactement ce que veut dire « un groupe ».
+    """
+    return {p: float(valeurs[g]) for p, g in groupes.items() if g in valeurs}
+
+
+def coefficients_initiaux(wn, groupes: dict[str, str]) -> dict[str, float]:
+    """Coefficient de départ de chaque groupe : la moyenne de ses conduites, pondérée par longueur.
+
+    Les groupes formés par diamètre mélangent parfois deux coefficients d'origine — sur L-Town,
+    les conduites de 100 mm sont pour 104 d'entre elles à 120 et pour 601 à 140. La moyenne
+    pondérée est le point de départ le moins arbitraire que le fichier permette.
+
+    À noter : la référence part de valeurs par groupe qui ne figurent pas dans le fichier de
+    réseau, donc d'une information sur le matériau et l'âge des conduites dont on ne dispose pas
+    ici. C'est une limite de cette reproduction, pas un choix.
+    """
+    depart = {}
+    for g in sorted(set(groupes.values())):
+        pipes = [p for p, gg in groupes.items() if gg == g]
+        L = np.array([wn.get_link(p).length for p in pipes])
+        C = np.array([wn.get_link(p).roughness for p in pipes])
+        depart[g] = float((L * C).sum() / L.sum())
+    return depart
+
+
+def residus(simule: np.ndarray, mesure: np.ndarray, sous_ech: int = 12,
+            sigma: np.ndarray | None = None) -> np.ndarray:
+    """Vecteur de résidus aplati, sous-échantillonné d'un facteur `sous_ech` (12 pas = 1 heure).
+
+    `sigma` est l'écart-type attribué à chaque capteur ; il pondère les résidus. Sans lui, tous
+    les capteurs pèsent pareil, ce qui revient à les supposer d'égale qualité.
+    """
     n = min(len(simule), len(mesure))
-    return (simule[:n:sous_ech] - mesure[:n:sous_ech]).ravel().astype(float)
+    e = (simule[:n:sous_ech] - mesure[:n:sous_ech]).astype(float)
+    if sigma is not None:
+        e = e / np.asarray(sigma, float)[None, :]
+    return e.ravel()
 
 
 def ajuster(simulateur: Callable[[dict[str, float]], np.ndarray],
             mesure: np.ndarray,
-            noms_groupes: list[str],
-            depart: float = 1.0,
+            depart: dict[str, float],
+            bornes: tuple[float, float] = (60.0, 160.0),
+            huber: float = 1.345,
+            tikhonov: float = 0.0,
+            sigma: np.ndarray | None = None,
             sous_ech: int = 12,
-            max_nfev: int = 60,
+            max_nfev: int = 25,
             verbeux: bool = True) -> dict:
-    """Ajuste un facteur de rugosité par groupe par Levenberg-Marquardt.
+    """Ajuste un coefficient de Hazen-Williams par groupe, au critère décrit en tête de module.
 
-    `simulateur` prend un dictionnaire {groupe: facteur} et renvoie les pressions simulées aux
-    33 capteurs, de même forme que `mesure`. Tout le reste de la configuration hydraulique —
-    demandes, conditions aux limites, découpage en tranches — est enfermé dans cette fermeture,
-    ce qui permet d'utiliser exactement la même routine d'ajustement avant et après les
-    améliorations du second carnet.
+    `depart` donne le coefficient initial de chaque groupe — voir `coefficients_initiaux`. C'est
+    lui qui fixe l'ordre des paramètres, et c'est aussi le point x₀ vers lequel la régularisation
+    de Tikhonov retient l'estimateur.
 
-    Renvoie {"facteurs", "rmse_depart", "rmse", "n_evaluations", "secondes", "trace"}.
+    `simulateur` prend un dictionnaire {groupe: coefficient} et renvoie les pressions simulées aux
+    capteurs, de même forme que `mesure`. Toute la configuration hydraulique — demandes,
+    conditions aux limites, découpage en tranches — est enfermée dans cette fermeture, ce qui
+    permet d'employer la même routine avant et après un changement de conditions aux limites.
+
+    `bornes` reprend l'encadrement de la référence, 60 à 160. `huber` est le seuil de bascule de
+    la perte robuste, en résidus normalisés. `tikhonov` est le coefficient α ; à 0, désactivé.
+
+    Attention en lisant le résultat : `rmse` porte sur les **seuls résidus de mesure**, pas sur le
+    critère optimisé, sans quoi la régularisation la gonflerait artificiellement. `aux_bornes`
+    nomme les groupes arrêtés sur une contrainte — s'il n'est pas vide, les données tiraient plus
+    loin que ce que la physique autorise, et c'est une information en soi.
     """
     journal = []
     t0 = time.time()
+    noms = list(depart)
+    x0 = np.array([float(depart[g]) for g in noms])
 
-    def cout(theta):
-        val = dict(zip(noms_groupes, np.exp(theta)))
-        r = residus(simulateur(val), mesure, sous_ech)
-        rmse = float(np.sqrt(np.mean(r ** 2)))
-        journal.append({**val, "rmse": rmse})
+    def mesurer(x):
+        val = dict(zip(noms, x))
+        r = residus(simulateur(val), mesure, sous_ech, sigma)
+        journal.append({**val, "rmse": float(np.sqrt(np.mean(r ** 2)))})
         if verbeux:
-            print(f"  [{len(journal):3d}] rmse {rmse:.4f} m   "
-                  + "  ".join(f"{g}×{v:.3f}" for g, v in val.items()), flush=True)
+            print(f"  [{len(journal):3d}] rmse {journal[-1]['rmse']:.4f} m   "
+                  + "  ".join(f"{g}={v:.1f}" for g, v in val.items()), flush=True)
         return r
 
-    theta0 = np.full(len(noms_groupes), np.log(depart))
-    r0 = cout(theta0)
-    sol = least_squares(cout, theta0, method="lm", diff_step=0.02, max_nfev=max_nfev)
-    facteurs = dict(zip(noms_groupes, np.exp(sol.x)))
+    def critere(x):
+        r = mesurer(x)
+        if tikhonov > 0:                       # α‖x − x₀‖² ajouté au vecteur de résidus
+            r = np.concatenate([r, np.sqrt(tikhonov) * (x - x0)])
+        return r
+
+    rmse0 = float(np.sqrt(np.mean(mesurer(x0) ** 2)))
+    sol = least_squares(critere, x0, method="trf", bounds=bornes, loss="huber",
+                        f_scale=huber, diff_step=0.02, max_nfev=max_nfev)
+    coefficients = dict(zip(noms, sol.x))
+    aux_bornes = [g for g, v in coefficients.items()
+                  if min(abs(v - bornes[0]), abs(v - bornes[1])) < 1e-6]
     return {
-        "facteurs": facteurs,
-        "rmse_depart": float(np.sqrt(np.mean(r0 ** 2))),
-        "rmse": float(np.sqrt(np.mean(sol.fun ** 2))),
+        "coefficients": coefficients,
+        "depart": dict(depart),
+        "rmse_depart": rmse0,
+        "rmse": float(journal[-1]["rmse"]),
+        "aux_bornes": aux_bornes,
         "n_evaluations": len(journal),
         "secondes": time.time() - t0,
         "trace": pd.DataFrame(journal),
@@ -88,7 +163,7 @@ def ajuster(simulateur: Callable[[dict[str, float]], np.ndarray],
 
 def balayage(simulateur: Callable[[dict[str, float]], np.ndarray],
              mesure: np.ndarray,
-             noms_groupes: list[str],
+             depart: dict[str, float],
              valeurs=(0.90, 0.95, 1.00, 1.05, 1.10),
              sous_ech: int = 12,
              verbeux: bool = True) -> pd.DataFrame:
@@ -99,7 +174,7 @@ def balayage(simulateur: Callable[[dict[str, float]], np.ndarray],
     """
     lignes = []
     for f in valeurs:
-        r = residus(simulateur({g: f for g in noms_groupes}), mesure, sous_ech)
+        r = residus(simulateur({g: c * f for g, c in depart.items()}), mesure, sous_ech)
         rmse, biais = float(np.sqrt(np.mean(r ** 2))), float(np.mean(r))
         lignes.append({"facteur": f, "rmse": rmse, "biais": biais,
                        "dispersion": float(np.sqrt(max(rmse ** 2 - biais ** 2, 0.0)))})

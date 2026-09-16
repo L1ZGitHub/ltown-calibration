@@ -191,6 +191,7 @@ def executer(wn):
 def preparer(D: np.ndarray | None, noeuds: list[str], heures: float, *,
              niveau0: float | None = None, statut_pompe=None,
              rugosite: dict[str, float] | None = None,
+             coefficients: dict[str, float] | None = None,
              pompe: np.ndarray | None = None,
              diametre_T1: float | None = None,
              inp: str | Path | None = None):
@@ -199,7 +200,9 @@ def preparer(D: np.ndarray | None, noeuds: list[str], heures: float, *,
     `D` est en **m³/h**, de forme (T, len(noeuds)) avec T ≥ heures·12 + 1 — EPANET lit le profil
     au pas de report et reboucle silencieusement sur un profil trop court.
 
-    `rugosite` multiplie le coefficient de Hazen-Williams des conduites nommées.
+    `rugosite` **multiplie** le coefficient de Hazen-Williams des conduites nommées ;
+    `coefficients` l'**impose**. Les deux ne se combinent pas : la calibration de référence
+    travaille sur des coefficients absolus, le balayage à un paramètre sur un facteur.
 
     `pompe` est le statut mesuré de `PUMP_1` pas par pas (1 en marche, 0 à l'arrêt). Quand il est
     fourni, les deux consignes de niveau du modèle sont retirées et remplacées par un profil de
@@ -227,17 +230,22 @@ def preparer(D: np.ndarray | None, noeuds: list[str], heures: float, *,
         pm.speed_timeseries.base_value = 1.0
         pm.speed_timeseries.pattern_name = "POMPE_MESUREE"
         pm.initial_status = LinkStatus.Open
+    if rugosite and coefficients:
+        raise ValueError("passer soit `rugosite` (facteur), soit `coefficients` (valeur absolue)")
     if rugosite:
         for p, f in rugosite.items():
             wn.get_link(p).roughness = wn.get_link(p).roughness * float(f)
+    if coefficients:
+        for p, c in coefficients.items():
+            wn.get_link(p).roughness = float(c)
     if diametre_T1 is not None:
         wn.get_node("T1").diameter = float(diametre_T1)
     return wn
 
 
 def simuler(D, noeuds, n_pas: int, extraire, *, tranche_jours: float = 7,
-            niveau0: float = 3.5, rugosite=None, pompe=None, niveau_mesure=None,
-            diametre_T1=None, inp=None, verbeux: bool = True) -> list:
+            niveau0: float = 3.5, rugosite=None, coefficients=None, pompe=None,
+            niveau_mesure=None, diametre_T1=None, inp=None, verbeux: bool = True) -> list:
     """Simule `n_pas` pas de 5 min en tranches et renvoie la liste des extraits.
 
     `extraire(res, wn, debut, fin)` est appelée une fois par tranche et décide de ce qui est
@@ -260,11 +268,17 @@ def simuler(D, noeuds, n_pas: int, extraire, *, tranche_jours: float = 7,
         fin = min(debut + pas_tranche, n_pas)
         heures = (fin - debut) * PAS_MIN / 60.0
         Dt = None if D is None else D[debut:fin + 1]
+        if Dt is not None and Dt.shape[0] < fin - debut + 1:
+            # EPANET lit le profil un pas au-delà de l'horizon de la tranche. Sur la toute
+            # dernière tranche d'une série de n_pas exactement, ce pas n'existe pas : on tient la
+            # dernière valeur. Sans cela, EPANET reboucle silencieusement sur le début du profil.
+            Dt = np.vstack([Dt, Dt[-1:]])
         pt = None if pompe is None else pompe[debut:fin + 1]
         if niveau_mesure is not None:
             niveau = float(niveau_mesure[debut])
         wn = preparer(Dt, noeuds, heures, niveau0=niveau, statut_pompe=statut,
-                      rugosite=rugosite, pompe=pt, diametre_T1=diametre_T1, inp=inp)
+                      rugosite=rugosite, coefficients=coefficients, pompe=pt,
+                      diametre_T1=diametre_T1, inp=inp)
         res = executer(wn)
         sorties.append(extraire(res, wn, debut, fin))
         niveau = float(res.node["head"]["T1"].to_numpy()[-1] - wn.get_node("T1").elevation)

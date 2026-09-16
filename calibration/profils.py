@@ -22,8 +22,18 @@ jonction y porte trois lignes de demande (résidentiel, commercial, industriel).
 `Tⱼ·Sⱼ` par type, elles, ne sont pas mesurées directement : on les obtient en résolvant
 l'équation (2) **à l'envers** sur les 82 nœuds où l'on a la mesure.
 
-À noter pour lire les résultats : la somme sur les trois types est un **mélange**, pas un
-produit. Le produit de l'équation (1) porte sur les effets temporels d'un même compteur.
+À noter pour lire les résultats : la somme sur les types est un **mélange**, pas un produit. Le
+produit de l'équation (1) porte sur les effets temporels d'un même compteur.
+
+**Deux écarts assumés par rapport à la référence**, à connaître avant de comparer des chiffres :
+
+1. La référence identifie le nombre de motifs distincts `n_d` et les compteurs aberrants par
+   **classification automatique** des séries. Ici on prend directement les trois types de
+   consommateurs que le fichier de réseau porte déjà, avec leurs poids par nœud — l'équation (2)
+   demande exactement cette structure, et elle est fournie. C'est plus simple et moins général.
+2. `saisonnalite` propose la **moyenne** périodique de la référence (valeur par défaut) et, en
+   option, la **médiane**. Voir la docstring : le choix n'est pas neutre sur des données de
+   consommation réelles.
 """
 from __future__ import annotations
 
@@ -50,19 +60,27 @@ def tendance(x: np.ndarray, fenetre: int = R.PAS_SEMAINE) -> np.ndarray:
     return uniform_filter1d(np.asarray(x, float), size=int(fenetre), mode="nearest")
 
 
-def saisonnalite(x: np.ndarray, creneaux: np.ndarray, n: int = R.PAS_SEMAINE) -> np.ndarray:
-    """S : profil hebdomadaire de `n` valeurs, par **médiane** de créneau, renormalisé à 1.
+def saisonnalite(x: np.ndarray, creneaux: np.ndarray, n: int = R.PAS_SEMAINE,
+                 statistique: str = "moyenne") -> np.ndarray:
+    """S : profil hebdomadaire de `n` valeurs, par moyenne de créneau, renormalisé à 1.
 
-    Médiane et non moyenne : quelques journées atypiques par an suffisent à déformer une moyenne
-    de 52 points, et le but de l'étape est précisément de retirer ces journées-là dans le résidu.
+    `statistique="moyenne"` reproduit la référence, qui estime S par moyennes périodiques sur la
+    série détendancée. `statistique="mediane"` est une variante robuste : chaque créneau ne
+    dispose que de 52 observations dans l'année, si bien qu'une poignée de journées atypiques —
+    une fuite, une vidange, un compteur en défaut — suffit à déplacer la moyenne du créneau
+    correspondant, et le but de l'étape est justement de renvoyer ces journées dans le résidu.
+
+    Le choix se mesure plutôt qu'il ne se tranche : sur des compteurs propres les deux
+    estimateurs coïncident, et ils divergent exactement là où il y a quelque chose à voir.
     """
     x = np.asarray(x, float)
-    s = np.array([np.median(x[creneaux == k]) if np.any(creneaux == k) else 1.0 for k in range(n)])
+    agrege = np.median if statistique == "mediane" else np.mean
+    s = np.array([agrege(x[creneaux == k]) if np.any(creneaux == k) else 1.0 for k in range(n)])
     moy = s.mean()
     return s / moy if moy > 0 else np.ones(n)
 
 
-def decomposer(serie: np.ndarray, creneaux: np.ndarray) -> dict:
+def decomposer(serie: np.ndarray, creneaux: np.ndarray, statistique: str = "moyenne") -> dict:
     """Décompose une série de compteur en d̄, T(t), S (profil) et R(t), selon l'équation (1).
 
     Renvoie un dictionnaire ; `lisse` est la reconstruction d̄·T(t)·S(t), c'est-à-dire la série
@@ -76,14 +94,14 @@ def decomposer(serie: np.ndarray, creneaux: np.ndarray) -> dict:
                 "residu": np.ones(n), "lisse": np.zeros(n)}
     x = d / moyenne
     T = tendance(x)
-    S = saisonnalite(x / np.maximum(T, 1e-9), creneaux)
+    S = saisonnalite(x / np.maximum(T, 1e-9), creneaux, statistique=statistique)
     St = S[creneaux]
     lisse = moyenne * T * St
     residu = np.divide(d, np.maximum(lisse, 1e-9), out=np.ones_like(d), where=lisse > 1e-9)
     return {"moyenne": moyenne, "tendance": T, "saison": S, "residu": residu, "lisse": lisse}
 
 
-def decomposer_amr(annee: int = 2018) -> dict:
+def decomposer_amr(annee: int = 2018, statistique: str = "moyenne") -> dict:
     """Applique l'équation (1) aux 82 compteurs d'une année.
 
     Renvoie `{"mesure": DataFrame, "lisse": DataFrame, "moyennes": Series, "saisons": DataFrame,
@@ -91,7 +109,7 @@ def decomposer_amr(annee: int = 2018) -> dict:
     """
     amr = R.charger_amr(annee)
     cr = R.creneau(amr.index)
-    parts = {c: decomposer(amr[c].to_numpy(), cr) for c in amr.columns}
+    parts = {c: decomposer(amr[c].to_numpy(), cr, statistique) for c in amr.columns}
     return {
         "mesure": amr,
         "lisse": pd.DataFrame({c: p["lisse"] for c, p in parts.items()}, index=amr.index),

@@ -57,9 +57,12 @@ def test_la_saisonnalite_ignore_les_journees_atypiques():
     x = base[cr].copy()
     x[:R.PAS_JOUR] *= 20.0                                    # une journée de fuite majeure
 
-    s = P.saisonnalite(x, cr)
+    robuste = P.saisonnalite(x, cr, statistique="mediane")
+    moyenne = P.saisonnalite(x, cr, statistique="moyenne")
 
-    assert np.abs(s - base / base.mean()).max() < 1e-9
+    assert np.abs(robuste - base / base.mean()).max() < 1e-9
+    # la moyenne périodique de la référence, elle, encaisse la journée aberrante
+    assert np.abs(moyenne - base / base.mean()).max() > 0.05
 
 
 def test_rmse_se_decompose_en_biais_et_dispersion():
@@ -134,6 +137,24 @@ def test_report_detat_entre_tranches():
     entier = R.pressions_simulees(D, noeuds, R.PAS_JOUR, tranche_jours=1, verbeux=False)
     coupe = R.pressions_simulees(D, noeuds, R.PAS_JOUR, tranche_jours=0.5, verbeux=False)
     assert np.abs(entier - coupe).max() < 1e-3
+
+
+@donnees
+def test_une_serie_de_demande_sans_pas_supplementaire():
+    """`simuler` doit accepter exactement `n_pas` lignes de demande, pas `n_pas + 1`.
+
+    EPANET lit le profil un pas au-delà de l'horizon ; sur la dernière tranche ce pas n'existe
+    pas. Sans garde-fou, le moteur reboucle sur le début du profil sans rien signaler — une
+    erreur silencieuse qui n'apparaît qu'en simulant une série complète.
+    """
+    wn = R.charger_modele(1)
+    n = R.PAS_JOUR
+    D, noeuds = P.demandes_nominales(wn, R.horodatage(2018, n + 1))
+    juste = R.pressions_simulees(D[:n], noeuds, n, tranche_jours=0.5, verbeux=False)
+    large = R.pressions_simulees(D, noeuds, n, tranche_jours=0.5, verbeux=False)
+    assert juste.shape == large.shape == (n, 33)
+    # seul le tout dernier pas peut différer, et de peu
+    assert np.abs(juste[:-1] - large[:-1]).max() < 1e-6
 
 
 @donnees
