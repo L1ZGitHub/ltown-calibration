@@ -15,9 +15,12 @@ modèle, tel qu'il est livré, n'écoute pas :
    estimée, et il dérive jusqu'à saturer — plein à 4 m, ou vide. Le niveau étant lui aussi
    mesuré, il suffit de **réancrer** chaque tranche de simulation sur la mesure.
 3. **La section du réservoir est une valeur de conception.** Le diamètre inscrit dans le modèle
-   est un nombre rond (16 m), et on peut espérer le retrouver dans les mesures sans inverser le
-   modèle : sur chaque demi-cycle de pompe, A·Δh = ∫(Q_pompe − Q_zoneC)·dt. Le résultat est
-   instructif — mais pas dans le sens attendu, voir `section_par_demi_cycles`.
+   est un nombre rond (16 m). Le bilan volumique par demi-cycle de pompe semble le retrouver sans
+   inverser le modèle — mais il mesure en fait une combinaison de la section et de la
+   consommation de la zone C, voir `section_par_demi_cycles`. `ajuster_reservoir` lève
+   l'ambiguïté en simulant la trajectoire du niveau au lieu de régresser des demi-cycles. Le
+   résultat final reste négatif, pour une autre raison que l'identifiabilité : une fois le niveau
+   réancré (levier 2), la section n'a plus d'effet.
 4. **Le niveau de la demande en zone A+B est mesuré, pas à modéliser.** La somme des débits
    d'entrée moins le débit de la pompe donne, à chaque pas, la consommation totale de A+B. Aucun
    modèle de demande ne battra une mesure directe ; autant recaler dessus.
@@ -155,6 +158,67 @@ def section_par_demi_cycles(wn, annee: int, **kw) -> dict:
         "diametre_du_modele_m": float(wn.get_node("T1").diameter),
         "demi_cycles": t,
     }
+
+
+def ajuster_reservoir(D: np.ndarray, noeuds: list[str], wn, annee: int, *,
+                      debut: int = 0, n_pas: int = 14 * R.PAS_JOUR,
+                      diametres=(13.0, 14.0, 15.0, 16.0, 17.0, 18.0),
+                      echelles=(1.0, 1.2, 1.4, 1.6, 1.8),
+                      verbeux: bool = True) -> pd.DataFrame:
+    """Estime la section de T1 **par simulation**, en visant le capteur de niveau lui-même.
+
+    Le bilan volumique de `section_par_demi_cycles` bute sur un aliasing : sur un demi-cycle de
+    remplissage, le volume pompé et le volume consommé sont tous deux proportionnels à la durée du
+    cycle, donc indissociables. Cette fonction contourne le problème au lieu de le subir, en
+    exploitant une asymétrie que le découpage en demi-cycles jetait :
+
+    * pompe à l'arrêt, la pente du niveau vaut −Q_C / A — elle ne donne qu'un **rapport** ;
+    * pompe en marche, elle vaut (Q_pompe − Q_C) / A, et Q_pompe, lui, est **mesuré**.
+
+    Les deux régimes pris ensemble séparent donc A de la consommation de la zone C. On les fait
+    travailler en simulant la trajectoire complète du niveau **sans jamais la réancrer** — c'est
+    l'accumulation libre de l'écart qui porte l'information — et en balayant les deux paramètres :
+    le diamètre du réservoir, et un facteur d'échelle sur la demande de la zone C.
+
+    **Vérifier la colonne `sature` avant de croire le résultat.** Sur une fenêtre où le réservoir
+    passe une part notable du temps collé au trop-plein, le critère ne s'aplatit pas — ce serait
+    trop commode — il devient **monotone** et pousse vers le plus petit réservoir de la grille :
+    un petit réservoir se remplit et se vide plus vite, donc sature moins, et l'optimiseur
+    poursuit la saturation au lieu de la physique. Mesuré sur L-Town : en janvier (saturation sous
+    les quelques pour cent) le minimum est intérieur, vers 15 à 16 m ; en juillet et en octobre
+    (13 à 20 % de saturation) il est au bord de la grille, quelle que soit la grille.
+
+    Deux vérifications, donc, et pas une : que l'optimum soit **intérieur**, et que le régime
+    simulé soit celui qu'on croit. C'est pourquoi la saturation est rendue à côté de l'erreur.
+
+    Renvoie un tableau trié par erreur croissante, une ligne par couple (diamètre, échelle).
+    """
+    niv = R.charger_niveau(annee).to_numpy()[debut:debut + n_pas]
+    pompe = statut_pompe(annee)[debut:debut + n_pas + 1]
+    z = R.zones(wn)
+    est_c = np.array([z[n] == "C" for n in noeuds])
+    base = D[debut:debut + n_pas + 1]
+
+    lignes = []
+    for k in echelles:
+        E = np.array(base, copy=True)
+        E[:, est_c] *= float(k)
+        for d in diametres:
+            h = np.concatenate(R.simuler(
+                E, noeuds, n_pas,
+                lambda res, w, a, b: (res.node["head"]["T1"].to_numpy()[:b - a]
+                                      - w.get_node("T1").elevation),
+                tranche_jours=n_pas / R.PAS_JOUR, niveau0=float(niv[0]),
+                pompe=pompe, diametre_T1=float(d), verbeux=False))
+            e = h - niv[:len(h)]
+            lignes.append({"diametre_m": float(d), "echelle_zoneC": float(k),
+                           "erreur_niveau_m": float(np.sqrt((e ** 2).mean())),
+                           "sature": float(np.mean((h <= 0.001) | (h >= 3.999)))})
+            if verbeux:
+                print(f"  diamètre {d:5.2f} m   échelle ×{k:.2f}   "
+                      f"erreur {lignes[-1]['erreur_niveau_m']:.3f} m   "
+                      f"saturé {lignes[-1]['sature']:.0%}", flush=True)
+    return pd.DataFrame(lignes).sort_values("erreur_niveau_m").reset_index(drop=True)
 
 
 # ------------------------------------------- levier 4 : recalage du niveau sur le bilan de masse

@@ -187,6 +187,21 @@ def test_le_recalage_ne_touche_que_la_zone_ab():
 
 
 @donnees
+def test_ajuster_reservoir_separe_la_section_de_la_demande():
+    """Le balayage par simulation doit fixer l'échelle de la zone C à 1, là où la régression
+    sur demi-cycles proposait 1,72 — c'est tout l'intérêt de simuler plutôt que de régresser."""
+    wn = R.charger_modele(1)
+    D, noeuds = P.demandes_calibrees(wn, 2018, n_pas=8 * R.PAS_JOUR)
+    t = A.ajuster_reservoir(D, noeuds, wn, 2018, debut=0, n_pas=7 * R.PAS_JOUR,
+                            diametres=(15.0, 16.0), echelles=(1.0, 1.6), verbeux=False)
+    assert list(t.columns) == ["diametre_m", "echelle_zoneC", "erreur_niveau_m", "sature"]
+    assert t.iloc[0].echelle_zoneC == 1.0
+    # et l'écart doit être franc, pas marginal
+    pire = t[t.echelle_zoneC == 1.6].erreur_niveau_m.min()
+    assert pire > 3 * t.iloc[0].erreur_niveau_m
+
+
+@donnees
 def test_section_du_reservoir_par_demi_cycles():
     wn = R.charger_modele(1)
     r = A.section_par_demi_cycles(wn, 2018)
