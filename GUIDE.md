@@ -427,8 +427,14 @@ sol = least_squares(critere, x0, method="trf", bounds=(60.0, 160.0),
 > critère ci-dessus en pose.
 >
 > **Sur la régularisation** : `tikhonov` vaut **0 par défaut**, donc le terme `α‖x−x₀‖²` est
-> désactivé, et `sigma=None` désactive la pondération par capteur. Les carnets tournent donc avec
-> les bornes et Huber seulement. Voir `CORRECTIONS.md` §1.
+> désactivé, et `sigma=None` désactive la pondération par capteur. Le carnet 1 reproduit la
+> référence avec les bornes et Huber seulement ; le carnet 2 mesure ce que la régularisation
+> change, et ce que donne un encadrement construit sur le fichier plutôt que sur la publication.
+>
+> **Huber ne doit pas écraser la pénalité.** `least_squares(loss="huber")` applique la perte
+> robuste à tout le vecteur qu'on lui rend — lignes de régularisation comprises. `ajuster`
+> applique donc Huber à la main, sur les seuls résidus de mesure, pour que `α‖x−x₀‖²` reste
+> quadratique. Voir `CORRECTIONS.md`, défaut B.
 
 `simulateur` est une **fermeture** : elle prend un dictionnaire `{groupe: coefficient}` et rend les
 pressions aux capteurs. Toute la configuration hydraulique y est enfermée, ce qui permettra
@@ -967,13 +973,84 @@ l'empêche pas d'être inutile.
 > rendues parfaitement lisses. Ce jeu améliore la dispersion de 16 % en juillet et la dégrade de
 > 46 % en janvier.
 
-**Trois règles pratiques en sortent**, qui ne valent pas que pour ce réseau :
+### Mais d'abord : qu'est-ce que la fenêtre d'ajustement contenait ?
 
-1. une calibration se juge **sur une période qui n'a pas servi à la régler**, et de préférence
+Avant de conclure au sur-ajustement, une question qu'on aurait dû poser plus tôt. Le jeu de données
+publie les fuites qu'il contient. On ne s'en sert pour aucun calcul — seulement pour savoir sur
+quoi on a réglé (`reseau.charge_de_fuite`) :
+
+| fenêtre | fuite moyenne | part de la conso A+B | rôle |
+|---|---|---|---|
+| semaine 1 (protocole publié) | **0,0 m³/h** | 0 % | comparaison au 6 cm |
+| janvier | ~0,0 | 0 % | transfert |
+| **juillet** | **12,3** | **7 %** | **ajustement** |
+| octobre | 34,3 | 20 % | transfert |
+
+On règle donc sur une fenêtre qui porte 12 m³/h de fuite, et on évalue sur une fenêtre qui n'en
+porte aucune. Or une fuite et un excès de friction produisent **le même effet** — une baisse de
+pression en aval — et l'optimiseur, qui n'a que la rugosité sous la main, ne peut pas les
+distinguer. Il paie la fuite avec de la rugosité.
+
+Vérifiable en une simulation : réglons sur janvier, la fenêtre propre.
+
+| groupe | conduites | départ | réglé sur **juillet** (12 m³/h) | réglé sur **janvier** (propre) |
+|---|---|---|---|---|
+| **D100** | **705** | 137 | **72** | **137** |
+| D150 | 103 | 138 | 160 | 137 |
+| D160 | 16 | 140 | 160 | **75** |
+| D200 | 64 | 140 | 150 | 128 |
+| D225 | 12 | 140 | 160 | **76** |
+| D<=75 | 5 | 135 | 160 | 109 |
+
+Sur la fenêtre propre, l'optimiseur **ne touche pas** aux deux gros groupes — D100 reste à sa
+valeur de fichier. Sur la fenêtre fuyarde, il fait tomber D100 de 137 à 72, c'est-à-dire qu'il
+rend 705 conduites sur 905 beaucoup plus rugueuses : exactement ce qu'il faut pour fabriquer la
+chute de pression qu'une fuite produit.
+
+**Ce sont deux pathologies distinctes**, qu'il ne faut pas confondre :
+
+| ce qui dérape | quand | pourquoi | remède |
+|---|---|---|---|
+| le **gros** groupe, 705 conduites | fenêtre fuyarde | l'information est **fausse** | changer de fenêtre |
+| les **petits** groupes, 12 à 16 conduites | partout | il n'y a **aucune** information | contraindre le paramètre |
+
+### Ce que les garde-fous valent, mesuré
+
+Le second remède se teste. Deux façons de dire « la vérité est près de la valeur du fichier » —
+une contrainte dure et une pénalité molle. Réglage sur juillet, variation de dispersion en % :
+
+| | janvier | **juillet** (ajustement) | octobre |
+|---|---|---|---|
+| tel quel — bornes (60, 160), α = 0 | **+28,1** | −13,2 | −3,0 |
+| bornes à ±10 % du fichier | −12,6 | **−0,1** | +9,0 |
+| régularisation α = 0,01 | −14,6 | +2,5 | +9,0 |
+| régularisation α = 0,1 | −14,9 | +2,0 | +5,7 |
+
+**Le gain de juillet disparaît dès qu'on interdit au modèle de s'éloigner du fichier.** Ce n'était
+donc pas de la calibration.
+
+Et l'encadrement publié ne contraint rien ici : le fichier ne contient que **deux** coefficients,
+120 sur 119 conduites et 140 sur 786, si bien que (60, 160) autorise −56 % à +17 % autour du
+départ. `rugosite.bornes_par_groupe` construit un encadrement à partir de ce que chaque groupe
+porte réellement — sous l'hypothèse, à énoncer comme telle, que les paramètres du jeu de données
+ont été écartés d'au plus 10 % de leur valeur vraie.
+
+**Bornes ou Tikhonov ?** Les deux marchent, mais ils n'encodent pas le même statut de
+connaissance. Une borne encode un **fait** et ne se règle pas ; α encode une **préférence** et
+demanderait d'être réglé — sur une fenêtre, dont on vient de voir que le choix est précisément le
+problème. Sur ce réseau, la bonne fenêtre existe : la première semaine de 2018 ne porte aucune
+fuite, et c'est déjà celle du protocole publié.
+
+**Quatre règles pratiques en sortent**, qui ne valent pas que pour ce réseau :
+
+1. **la fenêtre d'ajustement compte plus que la façon de contraindre le paramètre.** Aucune borne,
+   aucune régularisation ne rattrape une fenêtre qui contient autre chose que ce qu'on croit y
+   lire — elles en annulent seulement le gain apparent ;
+2. une calibration se juge **sur une période qui n'a pas servi à la régler**, et de préférence
    dans un autre régime de fonctionnement ;
-2. des paramètres physiquement invraisemblables sont **un diagnostic, pas un détail** — ils
+3. des paramètres physiquement invraisemblables sont **un diagnostic, pas un détail** — ils
    signalent que le modèle compense une erreur qui n'est pas celle qu'on croit corriger ;
-3. le nombre de paramètres **se décide avant l'optimisation**, en mesurant ce que les données
+4. le nombre de paramètres **se décide avant l'optimisation**, en mesurant ce que les données
    peuvent contraindre. Ici, un tableau de pertes de charge qui coûte une journée de simulation.
 
 ---
@@ -1090,18 +1167,21 @@ une autre. Ce ne sont pas deux valeurs contradictoires, ce sont deux fenêtres.
 
 ### Les tests
 
-`pytest -q` — **15 tests**, dont 5 synthétiques (qui tournent sans les données) et 10 marqués
+`pytest -q` — **19 tests**, dont 7 synthétiques (qui tournent sans les données) et 12 marqués
 `@donnees` (sautés si `data/raw/` est vide). Environ une minute.
 
 Les synthétiques vérifient que l'équation (1) retrouve un produit fabriqué, que la médiane et la
 moyenne divergent là où il y a quelque chose à voir, l'identité `RMSE² = biais² + dispersion²`, le
-piège du `% 2016`, et la détection des basculements de pompe.
+piège du `% 2016`, la détection des basculements de pompe, le fait que la transformation de Huber
+vaut l'identité sous son seuil et conserve le signe, et qu'un α croissant rapproche bien la
+solution de son point de départ.
 
 Ceux sur données vérifient la partition en zones (92/690), les **trois** lignes de demande par
 jonction, les groupes de rugosité, les unités des compteurs, le report d'état entre tranches, la
 série de demande sans pas supplémentaire, les formes par catégorie, le recalage qui ne touche que
-la zone A+B, le fait qu'`ajuster_reservoir` sépare bien la section de la demande, et la section
-par demi-cycles.
+la zone A+B, le fait qu'`ajuster_reservoir` sépare bien la section de la demande, la section par
+demi-cycles, que les bornes par groupe encadrent les coefficients que le groupe porte déjà, et que
+la première semaine de 2018 ne porte aucune fuite quand octobre en porte beaucoup.
 
 ### Relancer
 
@@ -1141,15 +1221,23 @@ affirmations y sont chiffrées presque partout.
    mais sans effet une fois le niveau réancré, et les rugosités, dans un réseau où la conduite
    médiane perd quatre millimètres de charge. Dans les deux cas, le diagnostic s'établit par une
    mesure directe et rapide, **sans lancer d'optimisation**.
+5. **La fenêtre d'ajustement compte plus que la façon de contraindre le paramètre.** Réglées sur
+   une semaine portant 12 m³/h de fuite, les rugosités achètent la fuite avec de la friction et
+   rendent absurde le groupe qui porte 705 conduites sur 905. Aucune borne, aucune régularisation
+   ne rattrape ce choix : elles n'en annulent que le gain apparent. Avant de contraindre un
+   paramètre, regarder ce que la fenêtre contient.
 
 **Ce qui reste à essayer**, dans cet ordre :
 
 1. **descendre le pas de réancrage sous 6 h** sur l'année complète. C'est le plus gros levier
    identifié, il n'a jamais été poussé plus loin, et il ne coûte que du temps de calcul ;
-2. **estimer la répartition spatiale de la demande** sur les 690 nœuds de la zone A+B. Le bilan de
+2. **refaire l'ajustement des rugosités sur la première semaine de 2018**, la seule de l'année
+   sans fuite, avec les bornes construites sur le fichier. C'est le seul réglage de friction qui
+   ne soit pas contaminé ;
+3. **estimer la répartition spatiale de la demande** sur les 690 nœuds de la zone A+B. Le bilan de
    masse en contraint la *somme*, pas la répartition, et l'erreur qui subsiste est majoritairement
    dynamique ;
-3. **regarder les réducteurs de pression.** Ils fixent la charge de tout l'aval et leur consigne
+4. **regarder les réducteurs de pression.** Ils fixent la charge de tout l'aval et leur consigne
    est, comme le diamètre du réservoir, un nombre rond dans le fichier. À garder pour la fin : ils
    déplaceraient une sous-zone en bloc, donc ils agiraient sur le **biais** — or après ajustement
    des rugosités le biais annuel n'est plus que de +0,018 m. Il n'y a presque plus rien à y gagner.

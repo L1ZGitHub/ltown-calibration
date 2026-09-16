@@ -1,198 +1,100 @@
-# Corrections à apporter
+# Journal des corrections
 
-Huit endroits où le texte du dépôt n'énonce pas ce que le code fait. Relevés en relisant ligne à
-ligne. **Aucune n'affecte les résultats** — ce sont des affirmations rédactionnelles que le code
-ne soutient pas.
+Onze endroits où le texte du dépôt n'énonçait pas ce que le code faisait, et deux défauts de
+code. Tous sont corrigés ; ce document garde la trace de ce qui a été trouvé, parce que plusieurs
+de ces écarts changeaient une conclusion et pas seulement une phrase.
 
 Pour comprendre le travail lui-même, voir [`GUIDE.md`](GUIDE.md).
 
 ---
 
-## 1. La régularisation est annoncée comme active ; elle ne l'est pas
+## Les deux qui changeaient un résultat
 
-`rugosite.ajuster` a `tikhonov=0.0` par défaut, ce qui **désactive** le terme `α‖x − x₀‖²`, et
-`sigma=None`, ce qui désactive la pondération par capteur. **Aucun des deux carnets ne les
-active** : les deux appellent
+### A. La régularisation était annoncée comme active ; elle ne l'était pas
 
-```python
-U.ajuster(simulateur, mesure_entr, depart, max_nfev=12, verbeux=False)
-```
+`rugosite.ajuster` a `tikhonov=0.0` par défaut — ce qui désactive le terme `α‖x − x₀‖²` — et
+`sigma=None`, ce qui désactive la pondération par capteur. Aucun carnet ne les activait. Le
+carnet 1 écrivait pourtant « *les trois garde-fous sont actifs par défaut* », et la docstring de
+module « *`ajuster` les reproduit tous les trois* ».
 
-Or le carnet 1, cellule 23, écrit : « *Les trois garde-fous sont actifs par défaut dans
-`rugosite.ajuster`.* » Et la docstring de `rugosite.py` : « *`ajuster` les reproduit tous les
-trois.* »
+Ce n'était pas qu'une formule : avec la régularisation activée, le chiffre le plus frappant du
+paragraphe sur les rugosités — **+28 % de dispersion en janvier**, cité comme la signature du
+sur-ajustement — devient bien plus modeste. Le texte décrivait une méthode dont les résultats
+auraient été différents.
 
-Ce qui tourne réellement : les **bornes** (60–160) et la **perte de Huber** (`f_scale=1.345`).
-Sur quatre ingrédients du critère publié, deux sont actifs.
+**Corrigé** : le texte dit maintenant lesquels sont actifs et pourquoi, et le carnet 2 mesure ce
+que la régularisation change.
 
-**Deux issues possibles :**
+### B. La pénalité de Tikhonov traversait la perte de Huber
 
-* **corriger le texte** — dire que `ajuster` *implémente* les trois mais que la régularisation est
-  laissée à 0 dans les carnets, les bornes suffisant à contenir l'estimateur. Cinq minutes ;
-* **corriger le code** — passer un `tikhonov` non nul dans les deux carnets et réexécuter. Plus
-  fidèle à la référence, mais cela change les coefficients, donc le tableau de transfert du §6 du
-  carnet 2, donc plusieurs paragraphes. Compter une heure.
+`least_squares(loss="huber")` applique la perte robuste à **tout** le vecteur qu'on lui rend, donc
+aussi aux lignes de régularisation qu'on y concatène. Au-delà de quelques unités d'écart, la
+pénalité croissait donc en `|x − x₀|` et non en `(x − x₀)²` — ce n'était plus du Tikhonov mais du
+L1, affaibli précisément là où on le voudrait fort. C'est aussi ce qui rendait α peu intuitif :
+il fixait à la fois la force de la pénalité et de quel côté du seuil de Huber on se trouvait.
 
-**Fichiers** : `calibration/rugosite.py` (docstring de module), `notebooks/01…ipynb` cellule 23.
-
----
-
-## 2. « Médiane » contre « moyenne »
-
-`profils.saisonnalite` a pour défaut `statistique="moyenne"`. C'est délibéré — c'est ce que fait
-la référence — et la docstring de la fonction le dit correctement. Mais quatre endroits annoncent
-encore la médiane :
-
-| fichier | endroit | texte |
-|---|---|---|
-| `README.md` | ligne 56 | « `S(t)` profil hebdomadaire obtenu par **médianes de créneau** » |
-| `calibration/profils.py` | ligne 11 | « la **saisonnalité hebdomadaire** (médianes périodiques…) » |
-| `notebooks/01…ipynb` | cellule 11 | « obtenue par **médiane** de créneau […] La médiane, et non la moyenne : … » |
-| `notebooks/01…ipynb` | cellule 12 | titre de figure « S — profil hebdomadaire (médianes de créneau) » |
-
-La cellule 11 argumente même explicitement *en faveur* de la médiane, alors que la figure juste en
-dessous est produite à la moyenne.
-
-**Correction** : remplacer par « moyennes de créneau », et garder l'argument sur la médiane comme
-**variante proposée** — c'est exactement ce que dit la docstring de `saisonnalite`.
-
-⚠️ Le titre de figure de la cellule 12 est du **code** : le changer impose de réexécuter la cellule
-(ou de corriger le seul titre à la main dans le `.ipynb`).
+**Corrigé** : `_pseudo_residus_huber` applique Huber à la main sur les seuls résidus de mesure, et
+`least_squares` travaille en moindres carrés ordinaires ; la pénalité reste quadratique. La
+transformation conserve le signe, pour que le jacobien numérique reste correct, et vaut l'identité
+sous le seuil — **à `tikhonov=0` le résultat est rigoureusement inchangé**, ce qui a été vérifié
+coefficient par coefficient avant d'aller plus loin.
 
 ---
 
-## 3. « Levenberg-Marquardt »
+## Les neuf autres
 
-Le solveur employé est `least_squares(method="trf")`, une région de confiance réfléchissante. La
-docstring de `rugosite.py` explique pourquoi : Levenberg-Marquardt n'accepte pas de bornes, alors
-que le critère en pose.
-
-Trois endroits disent malgré tout « Levenberg-Marquardt » :
-
-* `README.md`, lignes 18 et 178 ;
-* `calibration/__init__.py`, ligne 7 ;
-* `notebooks/01…ipynb`, titre du §6 (« *Les rugosités : six groupes et Levenberg-Marquardt* »).
-
-**Formulation de remplacement** : « moindres carrés non linéaires sous contraintes de boîte ».
-
----
-
-## 4. Le bilan du carnet 2 contredit son propre §4
-
-Cellule 35, point 4 :
-
-> *Deux paramètres réputés calibrables ne le sont pas ici : la section du réservoir, **aliasée**
-> avec la consommation non comptée de la zone qu'elle alimente…*
-
-Mais tout le §4 démontre l'inverse. La cellule 16 conclut « **l'aliasing est levé** », et la
-cellule 20 insiste :
-
-> *à écarter, **mais pas pour la raison qu'on croyait**. La section n'est pas « non identifiable » :
-> elle l'est […] Elle est simplement **sans effet** une fois le niveau réancré.*
-
-Le point 4 du bilan raconte donc la conclusion de la *première* passe, celle que le carnet a
-explicitement dépassée. **C'est la seule contradiction franche du dépôt**, et elle coûte une
-phrase à corriger.
-
-**Correction** : « la section du réservoir, identifiable mais sans effet une fois le niveau
-réancré ».
+| | quoi | où | correction |
+|---|---|---|---|
+| 1 | « médianes de créneau » alors que le défaut est la **moyenne** | `README`, `profils.py`, carnet 1 ×2 | moyenne, la médiane redevient l'option documentée qu'elle est |
+| 2 | « Levenberg-Marquardt » alors que le solveur est une région de confiance (LM n'accepte pas de bornes) | `README` ×2, `__init__.py`, titre du §6 du carnet 1 | « moindres carrés sous contraintes de boîte » |
+| 3 | le bilan du carnet 2 disait la section du réservoir « aliasée » alors que son propre §4 conclut que **l'aliasing est levé** et qu'elle est simplement sans effet | carnet 2, bilan | reformulé : identifiable, mais sans effet une fois le niveau réancré |
+| 4 | le tableau d'ouverture annonçait le levier 3 par le bilan volumique — la méthode qui **échoue** | carnet 2, cellule 0 | « trajectoire simulée du niveau » |
+| 5 | « un troisième… le quatrième » désignaient les leviers 4 et 3 | carnet 2, cellule 0 | leviers nommés par leur numéro |
+| 6 | « la forme résidentielle porte une saisonnalité marquée, la commerciale beaucoup moins » — les sorties disent 1,30 contre **1,32** | carnet 1, cellule 18 | amplitudes comparables, ce qui les sépare est la **phase** : pic en juillet contre septembre |
+| 7 | le profil industriel présenté comme un résultat alors qu'il est estimé sur **4 nœuds** | carnet 1, cellule 18 | réserve explicite ; c'est le bruit de quatre compteurs |
+| 8 | « ce qui resterait à essayer » omettait le pas de réancrage, pourtant désigné comme le plus gros levier restant, et surestimait les réducteurs | carnet 2, bilan | réordonné ; les réducteurs agiraient sur un biais qui ne vaut plus que +0,018 m |
+| 9 | la docstring de `simuler` décrivait son test avec les mauvaises durées (24 h/48 h au lieu de 12 h/24 h) | `reseau.py` | corrigé, avec le nom du test |
 
 ---
 
-## 5. Le tableau d'ouverture du carnet 2 annonce la mauvaise méthode
+## Ce que la relecture a fait apparaître en plus
 
-Cellule 0, ligne du levier 3 : mesure utilisée = « bilan volumique par demi-cycle ». C'est la
-méthode qui **échoue**. Celle qui aboutit est la simulation de la trajectoire de niveau.
+Deux choses qui ne sont pas des corrections mais des manques, et qui ont donné lieu à du code
+nouveau plutôt qu'à des phrases :
 
-Même cellule, deux lignes plus bas :
+**La charge de fuite de chaque fenêtre n'était nulle part.** Elle décide pourtant de la lecture de
+tout ajustement : les fenêtres employées dans les carnets vont de **0 m³/h** (la première semaine
+de janvier, celle du protocole publié) à **34 m³/h** (octobre, un cinquième de la consommation de
+la zone A+B). `reseau.charge_de_fuite` la donne, et le carnet 2 l'affiche à côté de chaque
+transfert. Les fuites ne servent à aucun calcul de calibration — seulement à savoir sur quoi on a
+réglé.
 
-> *Deux d'entre eux transforment le résultat. Un troisième corrige un biais […]. Le quatrième ne
-> donne rien.*
-
-C'est exact, mais « le troisième » désigne le levier **4** et « le quatrième » le levier **3** :
-l'ordre du tableau et l'ordre de la phrase ne coïncident pas. À désambiguïser.
-
----
-
-## 6. « Ce qui resterait à essayer » ne cite pas le plus gros levier
-
-La fin du carnet 2 établit que **le pas de réancrage est le plus gros levier restant** — passer de
-24 h à 6 h retire encore un quart de la RMSE annuelle, pour un coût qui n'est que du temps de
-calcul. Mais la section « Ce qui resterait à essayer », juste en dessous, propose la répartition
-spatiale de la demande et les réducteurs de pression, **sans mentionner le réancrage**.
-
-La piste des réducteurs mérite en outre d'être rétrogradée. Elle est justifiée ainsi :
-
-> *une consigne fausse de quelques centimètres déplacerait en bloc toute une sous-zone — ce qui
-> ressemble beaucoup à ce que fait le biais résiduel.*
-
-Or après ajustement des rugosités, le biais annuel n'est plus que de **+0,018 m**. Il n'y a
-presque plus de biais à expliquer ; l'erreur restante est **dynamique**, et les réducteurs sont un
-candidat pour le biais.
-
-**Ordre défendable** : (1) descendre le pas de réancrage sous 6 h ; (2) la répartition spatiale de
-la demande sur les 690 nœuds ; (3) les réducteurs.
-
----
-
-## 7. Ce que le chiffre annuel contient, et que le texte ne dit pas
-
-Ni le `README` ni le carnet 2 ne signalent que **la première semaine de 2018 ne porte aucune
-fuite**, alors que sur le reste de l'année le débit de fuite moyen représente une part
-appréciable de la consommation de la zone A+B.
-
-Deux conséquences, une phrase chacune :
-
-* la comparaison **0,062 contre 0,060 m** est faite sur la semaine la plus propre de l'année.
-  C'est le protocole de la référence, la comparaison est donc légitime — mais elle ne dit rien des
-  51 autres semaines ;
-* sur l'année, `recaler_zone_ab` cale la demande sur un débit d'entrée qui **contient les fuites**.
-  Leur volume se retrouve réparti sur 690 nœuds au lieu de sortir en un point ; cette mauvaise
-  localisation est **spatiale**, donc elle se retrouve dans la dispersion. Le **0,158 m** annuel est
-  par conséquent un **majorant** de l'erreur de modèle, et non une mesure de celle-ci — et chercher
-  à le faire baisser davantage reviendrait à absorber le signal de fuite.
-
-La réserve est déjà écrite dans la docstring de `ameliorations.py` ; elle manque simplement là où
-les chiffres annuels sont présentés.
-
----
-
-## 8. Le test de report d'état est décrit avec les mauvaises durées
-
-`reseau.simuler` annonce dans sa docstring :
-
-> *deux tranches de 24 h donnent les mêmes pressions que 48 h d'affilée à 1e-3 m près*
-
-Le test qui le vérifie (`test_report_detat_entre_tranches`) compare en réalité **deux tranches de
-12 h à 24 h d'affilée** — `tranche_jours=0.5` contre `tranche_jours=1` sur `PAS_JOUR` pas. Le
-`README` (« deux tranches de 12 h contre 24 h d'affilée ») est exact ; c'est la docstring qui
-dérive.
+**L'encadrement (60, 160) de la référence ne contraint rien ici.** Le fichier ne contient que deux
+coefficients, 120 et 140, si bien que ces bornes autorisent −56 % à +17 % autour du point de
+départ. `rugosite.bornes_par_groupe` construit un encadrement à partir des valeurs que chaque
+groupe porte réellement. C'est une hypothèse sur la construction du jeu de données, énoncée comme
+telle.
 
 ---
 
 ## Avant de réécrire quoi que ce soit
 
-**Ce qui est négociable** : le ton, le découpage, les titres, les métaphores, l'ordre des
-arguments, la longueur. Les textes actuels sont denses et assez péremptoires ; rien n'interdit de
-les aérer.
+**Négociable** : le ton, le découpage, les titres, les métaphores, la longueur.
 
-**Ce qui ne l'est pas, sauf à réexécuter :**
+**Pas négociable, sauf à réexécuter :**
 
-* **tout nombre cité dans un texte en markdown.** Ils viennent tous d'une sortie de cellule, et il
-  y en a beaucoup ;
-* **les comparaisons biais contre dispersion.** Ce n'est pas un ornement de vocabulaire : c'est ce
-  qui distingue « la RMSE s'améliore » de « le modèle s'améliore ». Si une phrase dit simplement
-  « c'est mieux », elle a perdu l'essentiel ;
+* **tout nombre cité dans un texte en markdown** — ils viennent tous d'une sortie de cellule ;
+* **les comparaisons biais contre dispersion.** Ce n'est pas du vocabulaire : c'est ce qui
+  distingue « la RMSE s'améliore » de « le modèle s'améliore ». Une phrase qui dit seulement
+  « c'est mieux » a perdu l'essentiel ;
 * **la distinction produit / mélange.** Équation (1) : un produit, les effets temporels d'un même
-  compteur. Équation (2) : une somme, les types de consommateurs d'un même nœud. C'est le
-  contresens le plus facile à introduire en reformulant ;
-* **les deux écarts assumés** par rapport à la référence (annexe du `GUIDE`). Les retirer
-  transformerait une reproduction honnête en une reproduction annoncée comme exacte ;
-* **les résultats négatifs** — la section du réservoir sans effet, les rugosités qui n'agissent que
-  sur le biais, les groupes arrêtés sur une borne. Ce sont eux qui font la valeur du carnet 2 ;
-  les adoucir le viderait.
+  compteur. Équation (2) : une somme, les types de consommateurs d'un même nœud ;
+* **les deux écarts assumés** par rapport à la référence. Les retirer transformerait une
+  reproduction honnête en une reproduction annoncée comme exacte ;
+* **les résultats négatifs** — section du réservoir sans effet, rugosités qui n'agissent que sur le
+  biais, groupes arrêtés sur une borne. Ce sont eux qui font la valeur du carnet 2.
 
-**Méthode pratique.** Une correction purement rédactionnelle dans un carnet s'édite directement
-dans le champ `source` de la cellule markdown du `.ipynb`, sans rien réexécuter : une cellule
-markdown n'a pas de sortie. Dès qu'une cellule **de code** change — y compris un simple titre de
-figure — il faut réexécuter le carnet et vérifier que les affirmations du texte tiennent toujours.
+**Méthode.** Une correction purement rédactionnelle s'édite directement dans le champ `source` de
+la cellule markdown du `.ipynb`, sans rien réexécuter : une cellule markdown n'a pas de sortie. Dès
+qu'une cellule **de code** change — y compris un titre de figure — il faut réexécuter le carnet et
+vérifier que les affirmations du texte tiennent toujours.

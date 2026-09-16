@@ -15,7 +15,7 @@ Deux carnets y répondent.
 
 | Carnet | Contenu |
 |---|---|
-| `notebooks/01_calibration_under_pressure.ipynb` | La méthode de référence, reproduite pas à pas : modèle de demande en produit d'effets, mélange de types de consommateurs, six groupes de rugosité ajustés par Levenberg-Marquardt. |
+| `notebooks/01_calibration_under_pressure.ipynb` | La méthode de référence, reproduite pas à pas : modèle de demande en produit d'effets, mélange de types de consommateurs, six groupes de rugosité ajustés par moindres carrés sous contraintes. |
 | `notebooks/02_ameliorations.ipynb` | Quatre leviers que cette méthode laisse de côté, tous lus dans les capteurs : l'état réel de la pompe, l'ancrage du niveau du réservoir, sa section réelle, et le niveau de demande donné par le bilan de masse. |
 
 Deux documents accompagnent le code : [`GUIDE.md`](GUIDE.md) explique le travail dans l'ordre où
@@ -33,7 +33,7 @@ Déposez les mesures dans `data/raw/` (voir [`data/README.md`](data/README.md)),
 `LTOWN_DIR` vers le dossier où elles se trouvent. Puis :
 
 ```bash
-pytest -q                       # vérifie l'installation et les invariants du réseau
+pytest -q                       # 19 tests : installation et invariants du réseau
 jupyter lab notebooks/
 ```
 
@@ -57,7 +57,7 @@ d(t) = d̄ · T(t) · S(t) · R(t)
 ```
 
 `d̄` moyenne annuelle, `T(t)` tendance lente obtenue par moyenne glissante sur une semaine (elle
-porte donc la saisonnalité annuelle), `S(t)` profil hebdomadaire obtenu par médianes de créneau,
+porte donc la saisonnalité annuelle), `S(t)` profil hebdomadaire obtenu par moyennes de créneau,
 `R(t)` résidu — **jeté**. On ne cherche pas à prédire le bruit de consommation, seulement la
 partie reproductible.
 
@@ -120,8 +120,15 @@ reproductible tel quel, et le voici :
 | ⤷ + six groupes de rugosité ajustés sur la semaine | −0,002 | 0,062 | **0,062 m** |
 | | | | *publié : 0,060 m* |
 
-**La reproduction retombe sur le chiffre publié**, à deux millimètres près. Deux observations qui
-comptent plus que cette coïncidence :
+**La reproduction retombe sur le chiffre publié**, à deux millimètres près. Trois observations
+qui comptent plus que cette coïncidence :
+
+* **cette semaine ne porte aucune fuite.** C'est la seule de l'année dans ce cas — sur les
+  51 autres, le débit de fuite va jusqu'à un cinquième de la consommation de la zone A+B. Le
+  chiffre est donc obtenu sur la fenêtre la plus propre qui soit, ce qui rend la comparaison
+  légitime (c'est le protocole de la référence) mais ne dit rien des autres semaines. Le second
+  carnet montre qu'un ajustement de rugosité réglé sur une fenêtre fuyarde achète la fuite avec
+  de la friction ;
 
 * **la rugosité seule n'y suffit pas.** Ajustée par-dessus le modèle de demande et les commandes
   du fichier — la configuration la plus proche de ce que décrit la référence — elle plafonne à
@@ -146,7 +153,14 @@ mêmes variantes évaluées sur les **105 120 pas de l'année 2018**, aux 33 cap
 | + réancrage toutes les 6 h | +0,122 | 0,158 | 0,199 m |
 | + six rugosités ajustées sur la **seule semaine 1** | +0,018 | 0,157 | **0,158 m** |
 
-**−68 % de RMSE, −60 % de dispersion.** Quatre remarques de lecture :
+**−68 % de RMSE, −60 % de dispersion.** Cinq remarques de lecture :
+
+* **ce chiffre annuel est un majorant de l'erreur de modèle, pas une mesure de celle-ci.** L'année
+  porte des fuites — en moyenne un septième de la consommation de la zone A+B — et le recalage sur
+  le bilan de masse les absorbe dans la demande : leur volume est réparti sur 690 nœuds au lieu de
+  sortir en un point. Cette mauvaise localisation est spatiale, donc elle se retrouve dans la
+  dispersion. Chercher à faire descendre ce chiffre plus bas reviendrait d'ailleurs à absorber le
+  signal de fuite, c'est-à-dire à détruire ce qu'un détecteur cherche ;
 
 * **la calibration de rugosité tient sur l'année, mais seulement sur la RMSE.** Six coefficients
   réglés sur une semaine de janvier retirent le biais de 12 cm sur les douze mois et laissent la
@@ -179,7 +193,7 @@ print(G.resume(S, R.charger_pressions(2018).to_numpy()))
 calibration/
 ├── reseau.py         accès aux données, topologie, zones, simulation par tranches
 ├── profils.py        les deux équations du modèle de demande
-├── rugosite.py       groupes de conduites, Levenberg-Marquardt, diagnostic d'identifiabilité
+├── rugosite.py       groupes de conduites, ajustement sous contraintes, identifiabilité
 ├── ameliorations.py  pompe mesurée, niveau ancré, section du réservoir, bilan de masse
 └── diagnostics.py    biais / dispersion / RMSE, par capteur et agrégés
 ```

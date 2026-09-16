@@ -4,7 +4,7 @@ Le dépôt contient deux choses :
 
 * `profils` et `rugosite` — la reproduction de la calibration décrite par l'équipe
   « Under Pressure » : demande décomposée en produit d'effets, mélange de types de consommateurs,
-  puis six groupes de rugosité ajustés par Levenberg-Marquardt ;
+  puis six groupes de rugosité ajustés par moindres carrés sous contraintes de boîte ;
 * `ameliorations` — quatre leviers supplémentaires lus dans les capteurs (état de la pompe,
   ancrage du niveau du réservoir, section réelle du réservoir, niveau de demande par bilan de
   masse).

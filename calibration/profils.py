@@ -8,7 +8,7 @@ La méthode tient en deux équations.
 
 où `d̄` est la moyenne annuelle, `T(t)` la **tendance** (moyenne glissante centrée sur une
 fenêtre d'une semaine, qui porte donc la saisonnalité annuelle), `S(t)` la **saisonnalité
-hebdomadaire** (médianes périodiques du signal détendancé, renormalisées à 1) et `R(t)` un
+hebdomadaire** (moyennes périodiques du signal détendancé, renormalisées à 1) et `R(t)` un
 résidu — que la méthode **jette**. C'est le point important : on ne cherche pas à prédire le
 bruit de consommation, on cherche la partie reproductible.
 
