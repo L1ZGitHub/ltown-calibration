@@ -17,6 +17,7 @@ from calibration import ameliorations as A
 from calibration import diagnostics as G
 from calibration import profils as P
 from calibration import reseau as R
+from calibration import rugosite as U
 
 donnees = pytest.mark.skipif(
     not (R.INP.exists() and (R.DONNEES / "2018_SCADA_Pressures.csv").exists()),
@@ -214,3 +215,64 @@ def test_section_du_reservoir_par_demi_cycles():
     # le volume pompé et le volume consommé sont presque colinéaires sur un remplissage :
     # c'est ce qui empêche de séparer la section de la consommation non comptée
     assert r["correlation_remplissage"] > 0.9
+
+
+# ------------------------------------------------- bornes physiques et régularisation
+def test_huber_manuel_vaut_la_perte_de_huber():
+    """La transformation doit valoir l'identité sous le seuil, et croître en √ au-delà.
+
+    C'est ce qui permet d'appliquer Huber aux seuls résidus de mesure et de laisser la pénalité
+    de Tikhonov quadratique, au lieu de la faire écraser par la perte robuste.
+    """
+    from calibration.rugosite import _pseudo_residus_huber as huber
+    f = 1.345
+    petits = np.array([-1.0, -0.4, 0.0, 0.4, 1.0, f])
+    assert np.allclose(huber(petits, f), petits)             # identité sous le seuil
+    grands = np.array([10.0, 20.0, 40.0])
+    carres = huber(grands, f) ** 2
+    ratio = carres / grands                                   # doit tendre vers une constante
+    assert np.ptp(ratio) < 0.2 * ratio.mean()
+    assert np.all(np.sign(huber(-grands, f)) == -1)            # le signe est conservé
+
+
+def test_tikhonov_retient_l_estimateur():
+    """Un α croissant doit rapprocher la solution du point de départ, et non l'en éloigner."""
+    x0 = {"a": 100.0, "b": 100.0}
+    cible = np.array([[140.0, 60.0]])                          # une mesure qui tire loin
+
+    def simulateur(c):
+        return np.array([[c["a"], c["b"]]])
+
+    ecarts = []
+    for alpha in (0.0, 0.1, 10.0):
+        sol = U.ajuster(simulateur, cible, x0, tikhonov=alpha, max_nfev=20, verbeux=False)
+        v = np.array([sol["coefficients"][k] for k in x0])
+        ecarts.append(np.abs(v - np.array([100.0, 100.0])).max())
+    assert ecarts[0] > ecarts[1] > ecarts[2]
+
+
+@donnees
+def test_bornes_par_groupe_encadrent_le_fichier():
+    """Chaque groupe doit pouvoir atteindre tous les coefficients qu'il porte déjà."""
+    wn = R.charger_modele(1)
+    groupes = R.groupes_de_rugosite(wn, 6)
+    bornes = U.bornes_par_groupe(wn, groupes, marge=0.10)
+    for g, (bas, haut) in bornes.items():
+        v = [wn.get_link(p).roughness for p, gg in groupes.items() if gg == g]
+        assert bas <= min(v) and max(v) <= haut, f"{g} n'encadre pas ses propres conduites"
+        assert bas > 60.0 and haut < 160.0, f"{g} n'est pas plus serré que l'encadrement publié"
+
+
+@donnees
+def test_la_premiere_semaine_de_2018_ne_porte_aucune_fuite():
+    """La fenêtre du protocole publié est la plus propre de l'année ; octobre est la plus chargée.
+
+    Ce n'est pas une curiosité : un ajustement de rugosité fait sur une fenêtre fuyarde achète la
+    fuite avec de la friction, puisque les deux font baisser la pression en aval.
+    """
+    semaine1 = R.charge_de_fuite(2018, 0, R.PAS_SEMAINE)
+    if semaine1 is None:
+        pytest.skip("fichier de fuites non fourni")
+    octobre = R.charge_de_fuite(2018, 275 * R.PAS_JOUR, R.PAS_SEMAINE)
+    assert semaine1["debit_m3h"] == 0.0
+    assert octobre["debit_m3h"] > 20.0

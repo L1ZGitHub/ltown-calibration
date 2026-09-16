@@ -15,7 +15,9 @@ de Tikhonov** vers la valeur initiale du fichier de réseau :
 
     min_{x_L ≤ x ≤ x_U}  ½ Σ_j Σ_i H_κ( ([S·y(t_j, x)]_i − z_i^j) / σ_ij )  +  α ‖x − x_0‖²
 
-Ces trois ingrédients ne sont pas décoratifs, et `ajuster` les reproduit tous les trois :
+`ajuster` implémente ces trois ingrédients, mais **seuls les deux premiers sont actifs par
+défaut** : `tikhonov` vaut 0, et `sigma` vaut `None`. C'est un choix d'appel, pas une limite —
+les carnets montrent ce que la régularisation change quand on l'active. À quoi ils servent :
 
 * les **bornes** interdisent les coefficients qu'aucune conduite réelle ne porterait ;
 * la **perte de Huber** empêche quelques pas de temps aberrants de gouverner l'ajustement ;
@@ -25,6 +27,12 @@ Ces trois ingrédients ne sont pas décoratifs, et `ajuster` les reproduit tous 
 Retirer les trois est instructif : l'optimiseur part alors chercher des coefficients multipliés
 par une trentaine, améliore la fenêtre d'ajustement et dégrade tout le reste. C'est mesuré dans
 le second carnet.
+
+Une mise en garde qui vaut plus que les trois garde-fous réunis : **aucun d'eux ne rattrape une
+mauvaise fenêtre d'ajustement**. Une fuite et un excès de friction produisent le même effet — une
+baisse de pression en aval — et l'optimiseur, qui n'a que la rugosité sous la main, paie la fuite
+avec de la rugosité. Voir `reseau.charge_de_fuite` : sur L-Town, les fenêtres employées vont de
+zéro à un cinquième de la consommation en débit de fuite.
 
 Deux détails d'implémentation. Le vecteur de résidus est **sous-échantillonné à l'heure** : une
 fenêtre de trois jours donne déjà 72 × 33 = 2 376 résidus pour six paramètres, et chaque
@@ -80,6 +88,51 @@ def coefficients_initiaux(wn, groupes: dict[str, str]) -> dict[str, float]:
     return depart
 
 
+def bornes_par_groupe(wn, groupes: dict[str, str], marge: float = 0.10) -> dict[str, tuple]:
+    """Bornes par groupe, déduites des coefficients que le groupe porte déjà dans le fichier.
+
+    La référence encadre les coefficients entre 60 et 160, une plage qui convient à un réseau dont
+    on connaît le matériau et l'âge des conduites. Sur L-Town le fichier ne contient que **deux**
+    valeurs — 120 sur 119 conduites, 140 sur les 786 autres — si bien que cet encadrement autorise
+    −56 % à +17 % autour du point de départ et ne contraint pratiquement rien.
+
+    Si l'on sait par ailleurs que les paramètres du jeu de données ont été écartés de leur valeur
+    vraie d'au plus `marge`, l'information s'encode bien mieux en contrainte qu'en pénalité : une
+    borne ne se règle pas, alors qu'un coefficient de Tikhonov est un paramètre libre de plus.
+
+    L'encadrement retenu va de `(1−marge)·min` à `(1+marge)·max` **du groupe**, et non de
+    `(1±marge)·moyenne` : un groupe qui mélange deux coefficients d'origine doit pouvoir atteindre
+    chacun d'eux. Sur le groupe D100, qui mêle 104 conduites à 120 et 601 à 140, la seconde règle
+    exclurait la valeur 120 pourtant présente dans le fichier.
+
+    ⚠️ `marge` est une **hypothèse sur la construction du jeu de données**, que rien dans ce dépôt
+    ne permet de vérifier. À énoncer comme telle partout où le résultat est présenté.
+    """
+    C = pd.Series({p: wn.get_link(p).roughness for p in wn.pipe_name_list})
+    bornes = {}
+    for g in sorted(set(groupes.values())):
+        v = C[[p for p, gg in groupes.items() if gg == g]]
+        bornes[g] = (float((1.0 - marge) * v.min()), float((1.0 + marge) * v.max()))
+    return bornes
+
+
+def _pseudo_residus_huber(r: np.ndarray, f_scale: float) -> np.ndarray:
+    """Résidus transformés pour que la somme de leurs carrés **soit** le critère de Huber.
+
+    `least_squares(loss="huber")` applique la perte robuste à la totalité du vecteur qu'on lui
+    rend — y compris, donc, aux lignes de régularisation qu'on y aurait ajoutées. La pénalité de
+    Tikhonov s'en trouve écrasée : au-delà de quelques unités d'écart elle croît en |x−x₀| et non
+    en (x−x₀)², c'est-à-dire qu'elle s'affaiblit précisément là où on la voudrait forte.
+
+    On applique donc Huber **à la main** sur les seuls résidus de mesure, et on laisse
+    `least_squares` en moindres carrés ordinaires. La transformation conserve le signe, pour que
+    le jacobien numérique reste correct, et vaut l'identité tant que |r| ≤ f_scale.
+    """
+    z = (np.asarray(r, float) / f_scale) ** 2
+    rho = np.where(z <= 1.0, z, 2.0 * np.sqrt(z) - 1.0)
+    return np.sign(r) * f_scale * np.sqrt(rho)
+
+
 def residus(simule: np.ndarray, mesure: np.ndarray, sous_ech: int = 12,
             sigma: np.ndarray | None = None) -> np.ndarray:
     """Vecteur de résidus aplati, sous-échantillonné d'un facteur `sous_ech` (12 pas = 1 heure).
@@ -97,7 +150,7 @@ def residus(simule: np.ndarray, mesure: np.ndarray, sous_ech: int = 12,
 def ajuster(simulateur: Callable[[dict[str, float]], np.ndarray],
             mesure: np.ndarray,
             depart: dict[str, float],
-            bornes: tuple[float, float] = (60.0, 160.0),
+            bornes: tuple[float, float] | dict[str, tuple] = (60.0, 160.0),
             huber: float = 1.345,
             tikhonov: float = 0.0,
             sigma: np.ndarray | None = None,
@@ -127,6 +180,12 @@ def ajuster(simulateur: Callable[[dict[str, float]], np.ndarray],
     t0 = time.time()
     noms = list(depart)
     x0 = np.array([float(depart[g]) for g in noms])
+    if isinstance(bornes, dict):                       # un encadrement propre à chaque groupe
+        bas = np.array([float(bornes[g][0]) for g in noms])
+        haut = np.array([float(bornes[g][1]) for g in noms])
+    else:
+        bas = np.full(len(noms), float(bornes[0]))
+        haut = np.full(len(noms), float(bornes[1]))
 
     def mesurer(x):
         val = dict(zip(noms, x))
@@ -138,17 +197,19 @@ def ajuster(simulateur: Callable[[dict[str, float]], np.ndarray],
         return r
 
     def critere(x):
-        r = mesurer(x)
+        # Huber est appliqué ici, sur les seuls résidus de mesure ; la pénalité de Tikhonov est
+        # ajoutée ensuite et reste donc quadratique, comme le critère le demande.
+        r = _pseudo_residus_huber(mesurer(x), huber)
         if tikhonov > 0:                       # α‖x − x₀‖² ajouté au vecteur de résidus
             r = np.concatenate([r, np.sqrt(tikhonov) * (x - x0)])
         return r
 
     rmse0 = float(np.sqrt(np.mean(mesurer(x0) ** 2)))
-    sol = least_squares(critere, x0, method="trf", bounds=bornes, loss="huber",
-                        f_scale=huber, diff_step=0.02, max_nfev=max_nfev)
+    sol = least_squares(critere, x0, method="trf", bounds=(bas, haut),
+                        diff_step=0.02, max_nfev=max_nfev)
     coefficients = dict(zip(noms, sol.x))
-    aux_bornes = [g for g, v in coefficients.items()
-                  if min(abs(v - bornes[0]), abs(v - bornes[1])) < 1e-6]
+    aux_bornes = [g for g, v, a, b in zip(noms, sol.x, bas, haut)
+                  if min(abs(v - a), abs(v - b)) < 1e-6]
     return {
         "coefficients": coefficients,
         "depart": dict(depart),
