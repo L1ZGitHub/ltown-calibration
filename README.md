@@ -11,12 +11,13 @@ pour poser la question qui nous intéresse ici :
 > Un modèle hydraulique livré avec des valeurs de conception, jusqu'où peut-on le rapprocher
 > de la réalité, et quel paramètre paie vraiment ?
 
-Deux carnets y répondent.
+Trois carnets y répondent.
 
 | Carnet | Contenu |
 |---|---|
 | `notebooks/01_calibration_under_pressure.ipynb` | La méthode de référence, reproduite pas à pas : modèle de demande en produit d'effets, mélange de types de consommateurs, six groupes de rugosité ajustés par moindres carrés sous contraintes. |
 | `notebooks/02_ameliorations.ipynb` | Quatre leviers que cette méthode laisse de côté, tous lus dans les capteurs : l'état réel de la pompe, l'ancrage du niveau du réservoir, sa section réelle, et le niveau de demande donné par le bilan de masse. |
+| `notebooks/03_generer_des_fuites.ipynb` | À quoi sert le modèle calibré : poser une fuite par émetteur, mesurer la baisse de pression aux 33 capteurs, et la comparer à l'erreur du modèle. |
 
 Deux documents accompagnent le code : [`GUIDE.md`](GUIDE.md) explique le travail dans l'ordre où
 il a été fait, code à l'appui, et se lit d'une traite ; [`CORRECTIONS.md`](CORRECTIONS.md) liste
@@ -199,6 +200,8 @@ calibration/
 └── diagnostics.py    biais / dispersion / RMSE, par capteur et agrégés
 ```
 
+Le carnet 3 écrit ses scénarios dans `data/generes/`, ignoré par git.
+
 Les fonctions sont écrites pour être appelées depuis un carnet : elles prennent des tableaux et
 rendent des tableaux, ne dessinent rien d'elles-mêmes (sauf les deux aides de `diagnostics`) et
 n'écrivent aucun fichier sans qu'on le leur demande.
@@ -209,6 +212,10 @@ n'écrivent aucun fichier sans qu'on le leur demande.
   `reseau.simuler` découpe en tranches de quelques jours et reporte le niveau du réservoir et le
   statut de la pompe d'une tranche à la suivante ; c'est vérifié par un test (deux tranches de
   12 h contre 24 h d'affilée, écart inférieur au millimètre).
+* **Une fuite se pose par un émetteur**, jamais par `wn.add_leak` : cette API de WNTR n'est lue
+  que par le simulateur écrit en Python et ne change **rien** sous le moteur EPANET — la
+  simulation tourne, sans fuite, et sans prévenir. `reseau.coefficient_emetteur` donne le
+  coefficient correspondant à un débit visé ; deux tests couvrent les deux points.
 * **Trois pièges d'unités** — modèle en m³/h contre moteur en m³/s, compteurs en L/h contre
   débitmètres en m³/h, CSV à virgule décimale — sont traités à un seul endroit, dans `reseau`.
 * **Le créneau hebdomadaire se calcule par jour de la semaine**, jamais par `pas % 2016` : deux

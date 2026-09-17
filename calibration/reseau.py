@@ -209,6 +209,23 @@ def section_reservoir(wn) -> float:
     return float(np.pi * (wn.get_node("T1").diameter / 2.0) ** 2)
 
 
+def coefficient_emetteur(debit_m3h: float, pression_m: float, exposant: float = 0.5) -> float:
+    """Coefficient d'émetteur EPANET donnant `debit_m3h` sous `pression_m`.
+
+    Un émetteur est le moyen de poser une fuite sous EPANET : le nœud laisse échapper
+    `Q = C·p^e`, avec `e = 0,5` dans ce fichier de réseau. Le coefficient attendu par WNTR est en
+    unités SI (m³/s pour `C·p^e`, `p` en mètres), d'où la division par 3600.
+
+    Le débit **réellement obtenu** est un peu plus faible que la cible, parce que la fuite fait
+    elle-même baisser la pression au nœud : environ −1 % à 5 m³/h et −4 % à 20 m³/h sur ce réseau.
+    On le relit donc dans la simulation plutôt que de le supposer (`test_emetteur_donne_le_debit_vise`).
+
+    L'API `wn.add_leak` de WNTR ne fait **rien** sous le moteur EPANET : elle n'est lue que par le
+    simulateur écrit en Python. C'est un piège silencieux — la simulation tourne, sans fuite.
+    """
+    return float(debit_m3h) / 3600.0 / float(pression_m) ** float(exposant)
+
+
 # ------------------------------------------------------------------------------- simulation
 def executer(wn):
     """Un passage du moteur EPANET, dans un fichier temporaire privé nettoyé derrière lui."""
@@ -229,6 +246,7 @@ def preparer(D: np.ndarray | None, noeuds: list[str], heures: float, *,
              coefficients: dict[str, float] | None = None,
              pompe: np.ndarray | None = None,
              diametre_T1: float | None = None,
+             fuites: dict[str, float] | None = None,
              inp: str | Path | None = None):
     """Un modèle prêt à tourner sur `heures`, avec une série de demande par jonction.
 
@@ -242,6 +260,8 @@ def preparer(D: np.ndarray | None, noeuds: list[str], heures: float, *,
     `pompe` est le statut mesuré de `PUMP_1` pas par pas (1 en marche, 0 à l'arrêt). Quand il est
     fourni, les deux consignes de niveau du modèle sont retirées et remplacées par un profil de
     vitesse : une vitesse nulle ferme la pompe. C'est le levier du second carnet.
+
+    `fuites` pose un émetteur par nœud nommé, de coefficient donné — voir `coefficient_emetteur`.
     """
     wn = charger_modele(heures, PAS_MIN, inp=inp)
     if D is not None:
@@ -275,12 +295,16 @@ def preparer(D: np.ndarray | None, noeuds: list[str], heures: float, *,
             wn.get_link(p).roughness = float(c)
     if diametre_T1 is not None:
         wn.get_node("T1").diameter = float(diametre_T1)
+    if fuites:
+        for n, c in fuites.items():
+            wn.get_node(n).emitter_coefficient = float(c)
     return wn
 
 
 def simuler(D, noeuds, n_pas: int, extraire, *, tranche_jours: float = 7,
             niveau0: float = 3.5, rugosite=None, coefficients=None, pompe=None,
-            niveau_mesure=None, diametre_T1=None, inp=None, verbeux: bool = True) -> list:
+            niveau_mesure=None, diametre_T1=None, fuites=None, inp=None,
+            verbeux: bool = True) -> list:
     """Simule `n_pas` pas de 5 min en tranches et renvoie la liste des extraits.
 
     `extraire(res, wn, debut, fin)` est appelée une fois par tranche et décide de ce qui est
@@ -314,7 +338,7 @@ def simuler(D, noeuds, n_pas: int, extraire, *, tranche_jours: float = 7,
             niveau = float(niveau_mesure[debut])
         wn = preparer(Dt, noeuds, heures, niveau0=niveau, statut_pompe=statut,
                       rugosite=rugosite, coefficients=coefficients, pompe=pt,
-                      diametre_T1=diametre_T1, inp=inp)
+                      diametre_T1=diametre_T1, fuites=fuites, inp=inp)
         res = executer(wn)
         sorties.append(extraire(res, wn, debut, fin))
         niveau = float(res.node["head"]["T1"].to_numpy()[-1] - wn.get_node("T1").elevation)

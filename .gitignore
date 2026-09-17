@@ -9,3 +9,6 @@ data/raw/*
 !data/raw/.gitkeep
 
 .pytest_cache/
+
+# données produites par le carnet 3
+data/generes/

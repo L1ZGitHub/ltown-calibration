@@ -276,3 +276,38 @@ def test_la_premiere_semaine_de_2018_ne_porte_aucune_fuite():
     octobre = R.charge_de_fuite(2018, 275 * R.PAS_JOUR, R.PAS_SEMAINE)
     assert semaine1["debit_m3h"] == 0.0
     assert octobre["debit_m3h"] > 20.0
+
+
+@donnees
+def test_emetteur_donne_le_debit_vise():
+    """`coefficient_emetteur` doit produire le débit demandé, à la baisse de pression près.
+
+    La fuite fait elle-même descendre la pression au nœud, donc le débit obtenu est un peu
+    inférieur à la cible : on vérifie qu'il reste à 10 % près, et qu'il est bien au-dessous.
+    """
+    noeud, cible = "n1", 10.0
+    sans = R.executer(R.charger_modele(duree_h=6))
+    p_ref = float(sans.node["pressure"][noeud].to_numpy().mean())
+    fuite_nulle = float(sans.node["demand"][noeud].to_numpy().mean()) * 3600.0
+
+    wn = R.preparer(None, [], 6.0,
+                    fuites={noeud: R.coefficient_emetteur(cible, p_ref)})
+    avec = R.executer(wn)
+    obtenu = float(avec.node["demand"][noeud].to_numpy().mean()) * 3600.0 - fuite_nulle
+
+    assert 0.90 * cible <= obtenu <= cible
+
+
+@donnees
+def test_add_leak_de_wntr_ne_fait_rien_sous_epanet():
+    """Le piège à documenter : `add_leak` ne change pas une simulation EPANET.
+
+    L'API n'est lue que par le simulateur écrit en Python. Sous EPANET la simulation tourne
+    normalement — et sans fuite. C'est pour cela que ce dépôt passe par un émetteur.
+    """
+    wn = R.charger_modele(duree_h=6)
+    wn.get_node("n1").add_leak(wn, area=0.01, start_time=0)
+    p = R.executer(wn).node["pressure"]["n1"].to_numpy()
+    p_ref = R.executer(R.charger_modele(duree_h=6)).node["pressure"]["n1"].to_numpy()
+
+    assert np.allclose(p, p_ref, atol=1e-6)
