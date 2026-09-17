@@ -338,7 +338,9 @@ def test_le_critere_physique_ne_melange_pas_deux_coefficients():
     """Le regroupement `"physique"` doit être homogène en coefficient, en diamètre et en zone.
 
     C'est tout son intérêt : le critère par diamètre seul réunit dans le groupe `D100`
-    104 conduites portant 120 et 497 portant 140, donc un seul paramètre pour deux valeurs vraies.
+    104 conduites portant 120 et 601 portant 140, donc un seul paramètre pour deux valeurs vraies.
+    Et `D100` n'est pas seul dans ce cas : `D150` (13/90) et `D<=75` (2/3) mélangent aussi, soit
+    813 conduites sur 905 réparties dans trois groupes qui ne peuvent pas converger.
     """
     wn = R.charger_modele(duree_h=24)
     phys = R.groupes_de_rugosite(wn, critere="physique")
@@ -351,3 +353,56 @@ def test_le_critere_physique_ne_melange_pas_deux_coefficients():
     # et le critère par diamètre, lui, en mélange bien — c'est le défaut qu'on corrige
     assert rugosites.groupby(pd.Series(diam)).nunique()["D100"] == 2
     assert len(set(phys.values())) == 13
+
+
+@donnees
+def test_aucune_jonction_ne_porte_les_trois_categories():
+    """Le « mélange de types de consommateurs » de l'équation (2) n'a jamais plus de deux termes.
+
+    Et surtout, la demande industrielle — dont la forme est estimée sur quatre compteurs
+    seulement, donc la plus bruitée des trois — vaut exactement zéro dans la zone A+B. Les quatre
+    nœuds qui la portent sont en zone C et tous équipés : elle n'est jamais extrapolée.
+    """
+    wn = R.charger_modele(duree_h=24)
+    bases = R.bases_nominales(wn)
+    zones = R.zones(wn)
+    amr = R.charger_amr(2018)
+
+    n_types = (bases > 0).sum(axis=1)
+    assert n_types.max() == 2
+    assert (n_types == 2).sum() == 561 and (n_types == 1).sum() == 186
+
+    ab = [n for n, z in zones.items() if z == "AB"]
+    assert bases.loc[ab, "Industrial"].sum() == 0.0
+
+    industriels = list(bases.index[bases["Industrial"] > 0])
+    assert len(industriels) == 4
+    assert all(zones[n] == "C" and n in amr.columns for n in industriels)
+
+
+@donnees
+def test_le_modele_de_demande_retrouve_la_consommation_reelle_de_ab():
+    """Le modèle de demande n'a pas d'écart de niveau : ce qui lui manquait était la fuite.
+
+    Le bilan `p227 + p235 − PUMP_1` mesure tout ce qui sort vers A+B, fuites comprises ; le modèle
+    ne reconstruit que ce qui est consommé. Une fois les fuites publiées retirées, les deux se
+    rejoignent — alors que les 82 compteurs sont tous en zone C, qui porte 12 % de la demande.
+    """
+    fuites = R.charger_fuites(2018)
+    if fuites is None:
+        pytest.skip("fichier de fuites absent")
+    wn = R.charger_modele(duree_h=24)
+    zones = R.zones(wn)
+    en_c = [p for p in fuites.columns
+            if zones.get(wn.get_link(p).start_node_name) == "C"
+            and zones.get(wn.get_link(p).end_node_name) == "C"]
+
+    D, noeuds = P.demandes_calibrees(wn, 2018)
+    ab = np.array([zones[n] == "AB" for n in noeuds])
+    modele = float(D[:R.PAS_AN, ab].sum(axis=1, dtype=float).mean())
+
+    bilan = A.demande_ab_mesuree(2018).mean()
+    fuite_ab = fuites[[p for p in fuites.columns if p not in en_c]].sum(axis=1).mean()
+
+    assert abs(modele / (bilan - fuite_ab) - 1) < 0.01     # à 1 % de la consommation réelle
+    assert modele / bilan - 1 < -0.05                      # et bien en dessous du bilan brut
