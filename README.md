@@ -11,7 +11,7 @@ pour poser la question qui nous intéresse ici :
 > Un modèle hydraulique livré avec des valeurs de conception, jusqu'où peut-on le rapprocher
 > de la réalité, et quel paramètre paie vraiment ?
 
-Trois carnets y répondent, et les deux premiers existent en deux découpages.
+Cinq carnets y répondent, et les deux premiers existent en deux découpages.
 
 | Carnet | Contenu |
 |---|---|
@@ -20,6 +20,8 @@ Trois carnets y répondent, et les deux premiers existent en deux découpages.
 | `notebooks/02_ameliorations.ipynb` | Quatre leviers que cette méthode laisse de côté, tous lus dans les capteurs : l'état réel de la pompe, l'ancrage du niveau du réservoir, sa section réelle, et le niveau de demande donné par le bilan de masse. |
 | `notebooks/02bis_ameliorations_pas_a_pas.ipynb` | Le second carnet dans le même découpage fin. Mêmes sorties. |
 | `notebooks/03_generer_des_fuites.ipynb` | À quoi sert le modèle calibré : poser une fuite par émetteur, mesurer la baisse de pression aux 33 capteurs, et la comparer à l'erreur du modèle. |
+| `notebooks/04_bilan_par_zone.ipynb` | Sans simuler : la zone C a toute sa frontière instrumentée, donc son bilan de masse donne directement le débit de fuite. La zone A+B, non — et on mesure de combien elle en est loin. |
+| `notebooks/05_regroupement.ipynb` | Le résultat négatif du carnet 2 venait-il du paramètre ou du regroupement ? Comparaison des groupes par diamètre et par zone × coefficient × diamètre, sur trois fenêtres. |
 
 Les carnets `bis` ne sont pas un résumé ni une suite : c'est **le même code et les mêmes
 résultats**, découpés plus finement. Pour découvrir le travail, commencez par eux ; les versions
@@ -199,10 +201,10 @@ print(G.resume(S, R.charger_pressions(2018).to_numpy()))
 
 ```
 calibration/
-├── reseau.py         accès aux données, topologie, zones, simulation par tranches
+├── reseau.py         accès aux données, topologie, zones, regroupements, simulation
 ├── profils.py        les deux équations du modèle de demande
 ├── rugosite.py       groupes de conduites, ajustement sous contraintes, identifiabilité
-├── ameliorations.py  pompe mesurée, niveau ancré, section du réservoir, bilan de masse
+├── ameliorations.py  pompe mesurée, niveau ancré, section du réservoir, bilans de masse
 └── diagnostics.py    biais / dispersion / RMSE, par capteur et agrégés
 ```
 

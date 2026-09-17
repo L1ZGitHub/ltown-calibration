@@ -1,15 +1,15 @@
 # Journal des corrections
 
 Onze endroits où le texte du dépôt n'énonçait pas ce que le code faisait, un défaut de code, et
-une conclusion que les données ne soutenaient pas. Tous sont corrigés ; ce document garde la trace
-de ce qui a été trouvé, parce que trois de ces écarts changeaient un résultat et pas seulement une
+deux conclusions que les données ne soutenaient pas. Tous sont corrigés ; ce document garde la trace
+de ce qui a été trouvé, parce que quatre de ces écarts changeaient un résultat et pas seulement une
 phrase.
 
 Pour comprendre le travail lui-même, voir [`GUIDE.md`](GUIDE.md).
 
 ---
 
-## Les trois qui changeaient un résultat
+## Les quatre qui changeaient un résultat
 
 ### A. La régularisation était annoncée comme active ; elle ne l'était pas
 
@@ -60,6 +60,36 @@ artefact.
 section 14 du guide énoncent le résultat tel qu'il est — sur ce réseau la rugosité n'est pas
 identifiable, quelle que soit la fenêtre. L'hypothèse de la fuite y est présentée pour ce qu'elle
 était : une hypothèse, mise à l'épreuve et écartée.
+
+### D. « Inidentifiable » était le bon constat, pour la mauvaise raison
+
+L'entrée C ci-dessus conclut que la rugosité n'est pas identifiable sur ce réseau, quelle que soit
+la fenêtre. Le constat tient, mais l'explication était incomplète — et la part manquante était
+visible sans lancer la moindre simulation.
+
+Le fichier ne contient que **deux** coefficients, 120 et 140. Or le regroupement par diamètre seul
+place dans le même groupe `D100` — 705 conduites, 78 % du réseau — 104 conduites qui portent 120 et
+601 qui portent 140. Un seul paramètre pour deux valeurs vraies ne peut pas converger : selon ce
+que la fenêtre met en avant, il penche d'un côté ou de l'autre. C'est très exactement l'oscillation
+82 / 137 / 72 qui servait de preuve.
+
+En croisant **zone × coefficient du fichier × diamètre** — treize groupes au lieu de six —
+l'instabilité moyenne entre fenêtres, pondérée par le nombre de conduites, passe de **58 à 17,5**
+unités de Hazen-Williams, et les quatre groupes qui portent 748 conduites sur 905 deviennent
+stables à quelques unités près, près de leur valeur de fichier.
+
+Ce qui reste instable se concentre alors sur **sept** conduites : `p227` et `p235`, les deux
+entrées du réseau, `p239`, la sortie du réservoir, et `p240`–`p318`, la conduite de transport de la
+zone C. Ces coefficients-là ne mesurent pas de la friction, ils compensent la condition aux
+limites.
+
+**Corrigé** : `reseau.groupes_de_rugosite` accepte `critere="physique"`, le carnet 5 fait la
+comparaison, et les carnets 2, `02bis` ainsi que la section 14 du guide renvoient à cette nuance.
+Le verdict pratique ne change pas — la rugosité ne rapporte rien ici — mais il ne repose plus sur
+un argument faux.
+
+**Le diagnostic coûtait une ligne** : compter, pour chaque groupe, le nombre de valeurs distinctes
+qu'il contient. C'est maintenant un test (`test_le_critere_physique_ne_melange_pas_deux_coefficients`).
 
 ---
 

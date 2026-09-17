@@ -311,3 +311,43 @@ def test_add_leak_de_wntr_ne_fait_rien_sous_epanet():
     p_ref = R.executer(R.charger_modele(duree_h=6)).node["pressure"]["n1"].to_numpy()
 
     assert np.allclose(p, p_ref, atol=1e-6)
+
+
+@donnees
+def test_le_bilan_de_la_zone_c_retrouve_les_fuites_publiees():
+    """Le bilan de masse de la zone C doit retrouver les fuites que le jeu de données publie.
+
+    Deux des quatorze conduites fuyardes de 2018, `p31` et `p257`, sont à l'intérieur de la
+    zone C. Le bilan ne les connaît pas : il ne voit que le débitmètre de la pompe, le capteur de
+    niveau et les 82 compteurs. Sur des moyennes journalières, il doit néanmoins les retrouver.
+    """
+    fuites = R.charger_fuites(2018)
+    if fuites is None:
+        pytest.skip("fichier de fuites absent")
+    wn = R.charger_modele(duree_h=24)
+    estimee = A.bilan_zone_c(wn, 2018)["fuite_m3h"].resample("D").mean()
+    publiee = fuites[["p31", "p257"]].sum(axis=1).resample("D").mean()
+
+    assert estimee.corr(publiee) > 0.99
+    assert abs((estimee - publiee).mean()) < 0.3        # biais, en m³/h
+    assert (estimee - publiee).std() < 0.5              # bruit journalier
+
+
+@donnees
+def test_le_critere_physique_ne_melange_pas_deux_coefficients():
+    """Le regroupement `"physique"` doit être homogène en coefficient, en diamètre et en zone.
+
+    C'est tout son intérêt : le critère par diamètre seul réunit dans le groupe `D100`
+    104 conduites portant 120 et 497 portant 140, donc un seul paramètre pour deux valeurs vraies.
+    """
+    wn = R.charger_modele(duree_h=24)
+    phys = R.groupes_de_rugosite(wn, critere="physique")
+    diam = R.groupes_de_rugosite(wn, n_groupes=6)
+
+    rugosites = pd.Series({p: wn.get_link(p).roughness for p in wn.pipe_name_list})
+    par_groupe = rugosites.groupby(pd.Series(phys)).nunique()
+    assert (par_groupe == 1).all(), "un groupe physique mélange deux coefficients"
+
+    # et le critère par diamètre, lui, en mélange bien — c'est le défaut qu'on corrige
+    assert rugosites.groupby(pd.Series(diam)).nunique()["D100"] == 2
+    assert len(set(phys.values())) == 13

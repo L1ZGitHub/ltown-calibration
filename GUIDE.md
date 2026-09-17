@@ -1047,8 +1047,20 @@ ce n'est plus la donnée qui décide, c'est la contrainte. Et le −13,8 % que l
 obtenait sur juillet ne survit pas mieux que le −13,2 % de la fenêtre fuyarde.
 
 **La conclusion est négative, et plus large que la fuite.** Il n'y a pas assez de friction dans ce
-réseau pour identifier six coefficients, quelle que soit la fenêtre. Le §15 le confirme sur douze
-mois : l'ajustement y déplace la dispersion de 0,3 %.
+réseau pour identifier **ces** six coefficients, quelle que soit la fenêtre. Le §15 le confirme sur
+douze mois : l'ajustement y déplace la dispersion de 0,3 %.
+
+> **Ce qui a été corrigé depuis.** Le mot important est « ces ». Le regroupement par diamètre seul
+> réunit dans `D100` 104 conduites dont le coefficient vrai vaut 120 et 601 dont il vaut 140 : un
+> paramètre pour deux valeurs, donc un paramètre qui ne peut pas converger. En croisant **zone ×
+> coefficient du fichier × diamètre**, l'instabilité entre fenêtres est divisée par plus de trois
+> (58 → 17,5 unités) et les quatre groupes qui portent 748 conduites sur 905 deviennent stables :
+> 130, 130 et 123 selon la fenêtre, là où `D100` donnait 82, 137 et 72. Ce qui reste instable se
+> concentre alors sur **sept** conduites — `p227`, `p235` (les entrées du réseau), `p239` (la
+> sortie du réservoir) et la conduite de transport de la zone C — c'est-à-dire sur des coefficients
+> qui servent de bouton de réglage pour la condition aux limites, pas de mesure de friction. Le
+> carnet 5 fait la comparaison complète. Le verdict sur la rugosité comme levier ne change pas ;
+> sa raison, si.
 
 Et l'encadrement publié ne contraint rien ici : le fichier ne contient que **deux** coefficients,
 120 sur 119 conduites et 140 sur 786, si bien que (60, 160) autorise −56 % à +17 % autour du

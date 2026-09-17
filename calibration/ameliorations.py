@@ -80,6 +80,36 @@ def demande_c_estimee(wn, annee: int) -> pd.Series:
     return amr.sum(axis=1) * facteur
 
 
+def bilan_zone_c(wn, annee: int) -> pd.DataFrame:
+    """Décompose la zone C par bilan de masse : ce qui entre, ce qui est consommé, ce qui fuit.
+
+    La zone C est la seule partie du réseau dont **toute** la frontière est instrumentée. Tout ce
+    qui y entre passe par la pompe, dont le débit est mesuré, et le seul stock est le réservoir,
+    dont le niveau est mesuré :
+
+        entrée = Q_pompe − A · dh/dt
+
+    Ce qui y est consommé est donné par les 82 compteurs, extrapolés aux 92 jonctions
+    (`demande_c_estimee`). La différence est donc ce qui sort du réseau sans être consommé —
+    autrement dit la **fuite**, obtenue sans simuler et sans ouvrir le fichier de fuites.
+
+    Sur 2018 l'estimation est juste à **+0,08 m³/h** près, avec un bruit de 0,23 m³/h sur des
+    moyennes journalières (`test_le_bilan_de_la_zone_c_retrouve_les_fuites_publiees`). Le bruit au
+    pas de 5 minutes est dix fois plus grand : le capteur de niveau n'a que deux décimales, et
+    `A · dh` amplifie cet arrondi d'un facteur 201 m².
+
+    Rien d'équivalent n'existe pour la zone A+B : la différence aux débitmètres d'entrée y donne
+    la somme « fuites + consommation », que rien ne permet de séparer.
+    """
+    q = R.charger_debits(annee)
+    h = R.charger_niveau(annee)
+    section = R.section_reservoir(wn)
+    entre = q["PUMP_1"] - section * h.diff().shift(-1) / (R.PAS_MIN / 60.0)
+    consomme = demande_c_estimee(wn, annee)
+    return pd.DataFrame({"entre_m3h": entre, "consomme_m3h": consomme,
+                         "fuite_m3h": entre - consomme})
+
+
 def demi_cycles(wn, annee: int, min_pas: int = 12, min_delta: float = 0.05) -> pd.DataFrame:
     """Découpe l'année en intervalles où la pompe ne change pas d'état, et fait le bilan de chacun.
 

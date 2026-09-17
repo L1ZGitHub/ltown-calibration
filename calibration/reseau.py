@@ -187,13 +187,41 @@ def bases_nominales(wn) -> pd.DataFrame:
     return pd.DataFrame.from_dict(lignes, orient="index")[list(CATEGORIES)]
 
 
-def groupes_de_rugosite(wn, n_groupes: int = 6) -> dict[str, str]:
-    """Regroupe les 905 conduites par **classe de diamètre**, du plus fin au plus gros.
+def zone_de_conduite(wn, zones_par_noeud: dict[str, str] | None = None) -> dict[str, str]:
+    """Zone de chaque conduite : `"C"`, `"AB"`, ou `"frontiere"` si ses deux extrémités diffèrent."""
+    z = zones_par_noeud if zones_par_noeud is not None else zones(wn)
+    sortie = {}
+    for p in wn.pipe_name_list:
+        lien = wn.get_link(p)
+        a, b = z.get(lien.start_node_name), z.get(lien.end_node_name)
+        sortie[p] = a if a == b else "frontiere"
+    return sortie
 
-    L-Town compte sept diamètres (63, 75, 100, 150, 160, 200, 225 mm) très inégalement répartis :
-    705 conduites en 100 mm, cinq seulement sous 100 mm. Pour six groupes, les deux plus petites
-    classes sont fusionnées. Renvoie {conduite: nom de groupe}.
+
+def groupes_de_rugosite(wn, n_groupes: int = 6, critere: str = "diametre") -> dict[str, str]:
+    """Regroupe les 905 conduites. Renvoie {conduite: nom de groupe}.
+
+    Deux critères, et le choix n'est pas cosmétique — il décide de ce que l'ajustement peut
+    identifier (carnet 5).
+
+    `"diametre"` (défaut) regroupe par **classe de diamètre** seule, comme le fait ce dépôt depuis
+    le carnet 1. L-Town compte sept diamètres (63, 75, 100, 150, 160, 200, 225 mm) très inégalement
+    répartis : 705 conduites en 100 mm, cinq seulement sous 100 mm. Pour six groupes, les deux plus
+    petites classes sont fusionnées.
+
+    `"physique"` croise **zone × coefficient du fichier × diamètre**, soit 13 groupes. C'est plus
+    proche de ce que décrit la référence — même matériau, même âge, mêmes conditions hydrauliques —
+    et surtout cela cesse de mélanger des conduites dont la valeur vraie diffère : le fichier ne
+    porte que deux coefficients, 120 et 140, et le critère par diamètre seul réunit dans un même
+    groupe 104 conduites à 120 et 497 à 140. Un seul paramètre pour deux valeurs vraies ne peut
+    pas être stable, et il ne l'est pas.
     """
+    if critere == "physique":
+        zc = zone_de_conduite(wn)
+        return {p: (f"{zc[p]}|C{wn.get_link(p).roughness:.0f}"
+                    f"|D{wn.get_link(p).diameter * 1000:.0f}") for p in wn.pipe_name_list}
+    if critere != "diametre":
+        raise ValueError(f"critère inconnu : {critere!r} (attendu 'diametre' ou 'physique')")
     diam = pd.Series({p: round(wn.get_link(p).diameter * 1000, 1) for p in wn.pipe_name_list})
     classes = sorted(diam.unique())
     if n_groupes < len(classes):                       # fusionne les plus petites classes
