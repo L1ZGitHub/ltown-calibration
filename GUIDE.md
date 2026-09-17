@@ -277,7 +277,7 @@ On sait décrire un compteur. Il faut maintenant fabriquer une série pour les 7
 n'en ont pas. Comment ?
 
 L'idée est de ne pas traiter les nœuds comme interchangeables. Le fichier de réseau porte, pour
-chaque jonction, **trois lignes de consommation** — une par type de consommateur : résidentiel,
+chaque jonction, une ligne de consommation **par type de consommateur** présent : résidentiel,
 commercial, industriel. Un nœud avec beaucoup de commerces n'a pas le même rythme qu'un nœud
 résidentiel. Donc on écrit la consommation d'un nœud comme un **mélange** de types :
 
@@ -288,6 +288,13 @@ d̂ᵢ(t) = Σⱼ d̄ᵢⱼ · Tⱼ(t) · Sⱼ(t)
 Attention à ne pas confondre les deux équations : l'équation (1) est un **produit** (les effets
 temporels d'un même compteur se multiplient), l'équation (2) est une **somme** (les types de
 consommateurs d'un même nœud s'additionnent). C'est le contresens le plus facile à faire.
+
+Le mot « mélange » est à prendre au pied de la lettre, et pas plus loin : sur L-Town **aucune
+jonction ne porte les trois types**. 186 n'en portent qu'un, 561 en portent exactement deux —
+toujours résidentiel + commercial — et 35 n'ont aucune demande. Surtout, la demande industrielle
+vaut **exactement zéro dans la zone A+B** : elle n'existe que sur quatre nœuds, tous en zone C, et
+tous équipés d'un compteur. C'est ce qui sauve la forme industrielle, estimée sur ces quatre
+compteurs seulement et de loin la plus bruitée des trois : elle n'est **jamais extrapolée**.
 
 Les poids `d̄ᵢⱼ` sont donnés — ils sont dans le fichier :
 
@@ -363,9 +370,18 @@ Un contrôle indépendant confirme *et* nuance. Si on compare la demande totale 
 les débitmètres mesurent, mois par mois : la **forme** saisonnière est retrouvée, mais il reste un
 **écart de niveau** — le modèle est systématiquement en dessous de la mesure.
 
-Une partie de cet écart est attendue (le débit d'entrée contient aussi ce qui fuit, et un réseau
-réel fuit), mais pas forcément toute. Retenez ce point : on y reviendra en section 12, et il
-deviendra un levier à part entière.
+Cet écart n'est pas un défaut du modèle, et on peut le montrer. Le bilan `p227 + p235 − PUMP_1`
+mesure tout ce qui **sort** vers la zone A+B, fuites comprises ; le modèle ne reconstruit que ce
+qui est **consommé**. Le jeu de données publiant ses fuites, la soustraction est faisable : sur
+2018, A+B laisse sortir 174,9 m³/h dont 18,2 de fuite, soit 156,7 réellement consommés — et le
+modèle en annonce **157,0**, à **+0,2 %**, mois par mois à quelques dixièmes près.
+
+Autrement dit, des formes horaires extraites de 82 compteurs tous situés en zone C, qui porte 12 %
+de la demande, retrouvent la consommation des 690 nœuds non mesurés à 0,2 % près. C'est le contrôle
+le plus sévère de la méthode, et elle le passe.
+
+Retenez le corollaire : le levier de la section 12 recale la demande sur le bilan **brut**, donc il
+ajoute ces 18 m³/h de fuite à un modèle qui était déjà juste.
 
 ---
 
@@ -1287,9 +1303,11 @@ affirmations y sont chiffrées presque partout.
    0,3 % près. Ce qu'on publie ici, c'est donc un recentrage, pas une mesure de friction ;
 4. **la tendance est estimée par un filtre qui l'atténue** de `sinc(fenêtre/période)` — négligeable
    à l'échelle annuelle, 2,5 % à deux mois ;
-5. **le recalage sur le bilan de masse absorbe les fuites dans la demande** (section 13). Le
-   chiffre annuel de 0,158 m est donc un **majorant** de l'erreur de modèle, pas une mesure de
-   celle-ci ;
+5. **le recalage sur le bilan de masse absorbe les fuites dans la demande** (section 13), et on
+   sait maintenant combien : **18 m³/h, soit 10 % de la consommation de A+B**, répartis sur 690
+   nœuds, dans un modèle de demande qui était déjà juste à 0,2 % près (section 6). Le chiffre
+   annuel de 0,158 m est donc un **majorant** de l'erreur de modèle, pas une mesure de celle-ci ;
+   et le modèle qui sert à simuler n'est pas celui qui servirait à détecter ;
 6. **tout est mesuré sur une seule année et un seul réseau.** La seconde année disponible n'a servi
    à rien ici.
 

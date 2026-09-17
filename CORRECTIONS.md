@@ -1,15 +1,15 @@
 # Journal des corrections
 
 Onze endroits où le texte du dépôt n'énonçait pas ce que le code faisait, un défaut de code, et
-deux conclusions que les données ne soutenaient pas. Tous sont corrigés ; ce document garde la trace
-de ce qui a été trouvé, parce que quatre de ces écarts changeaient un résultat et pas seulement une
-phrase.
+trois conclusions que les données ne soutenaient pas. Tous sont corrigés ; ce document garde la
+trace de ce qui a été trouvé, parce que cinq de ces écarts changeaient un résultat et pas seulement
+une phrase.
 
 Pour comprendre le travail lui-même, voir [`GUIDE.md`](GUIDE.md).
 
 ---
 
-## Les quatre qui changeaient un résultat
+## Les cinq qui changeaient un résultat
 
 ### A. La régularisation était annoncée comme active ; elle ne l'était pas
 
@@ -73,6 +73,9 @@ place dans le même groupe `D100` — 705 conduites, 78 % du réseau — 104 con
 que la fenêtre met en avant, il penche d'un côté ou de l'autre. C'est très exactement l'oscillation
 82 / 137 / 72 qui servait de preuve.
 
+Et `D100` n'est pas un cas isolé : `D150` mélange 13 conduites à 120 et 90 à 140, `D<=75` en
+mélange 2 et 3. **Trois des six groupes sont hétérogènes, et ils couvrent 813 conduites sur 905.**
+
 En croisant **zone × coefficient du fichier × diamètre** — treize groupes au lieu de six —
 l'instabilité moyenne entre fenêtres, pondérée par le nombre de conduites, passe de **58 à 17,5**
 unités de Hazen-Williams, et les quatre groupes qui portent 748 conduites sur 905 deviennent
@@ -91,6 +94,35 @@ un argument faux.
 **Le diagnostic coûtait une ligne** : compter, pour chaque groupe, le nombre de valeurs distinctes
 qu'il contient. C'est maintenant un test (`test_le_critere_physique_ne_melange_pas_deux_coefficients`).
 
+
+### E. L'« écart de niveau » du modèle de demande n'existait pas : c'était la fuite
+
+Le §4 du carnet 1 constatait que le modèle de demande reconstruit à partir des 82 compteurs reste
+**systématiquement en dessous** du bilan de masse `p227 + p235 − PUMP_1`. Faute de trancher, il
+parlait d'un écart « en partie attendu, mais pas forcément tout », et renvoyait au carnet 2 qui en
+faisait un levier de calibration.
+
+La vérification manquante coûte une soustraction : le jeu de données **publie ses fuites**, et rien
+n'interdit de s'en servir pour valider ce qu'on ne lui a jamais demandé. Sur l'année, la zone A+B
+laisse sortir 174,9 m³/h, dont 18,2 de fuite publiée, soit 156,7 m³/h réellement consommés. Le
+modèle de demande en annonce **157,0**, à **+0,2 %**, et il suit la courbe corrigée mois par mois à
+quelques dixièmes près.
+
+Il n'y avait donc pas d'écart de niveau. Les 10 % manquants étaient de la fuite, en totalité — ce
+qui est aussi un contrôle bien plus sévère du modèle qu'aucun de ceux qui avaient été faits : les
+82 compteurs sont tous en zone C, qui porte 12 % de la demande, et les formes horaires qu'on en
+extrait retrouvent à 0,2 % près la consommation des 690 nœuds non mesurés.
+
+**Ce que ça change pour le levier 4 du carnet 2.** Il recale la demande de A+B sur le bilan
+**brut**, donc il prend un modèle déjà juste et y ajoute 18 m³/h de fuite répartis sur 690 nœuds.
+Le levier reste bon pour **simuler** — cette eau circule réellement dans les conduites — et devient
+rédhibitoire pour **détecter**, puisque la fuite est alors inscrite dans la demande au lieu de
+rester dans le résidu. La réserve figurait déjà dans le carnet ; elle est maintenant chiffrée, et
+les deux usages sont énoncés comme demandant deux modèles.
+
+**Corrigé** : le §8 du carnet 4 fait la mesure, le §4 des carnets 1 et `01bis` énonce le résultat
+au lieu de laisser la question ouverte, et la réserve des carnets 2 et `02bis` porte le chiffre.
+
 ---
 
 ## Les neuf autres
@@ -104,6 +136,7 @@ qu'il contient. C'est maintenant un test (`test_le_critere_physique_ne_melange_p
 | 5 | « un troisième… le quatrième » désignaient les leviers 4 et 3 | carnet 2, cellule 0 | leviers nommés par leur numéro |
 | 6 | « la forme résidentielle porte une saisonnalité marquée, la commerciale beaucoup moins » — les sorties disent 1,30 contre **1,32** | carnet 1, cellule 18 | amplitudes comparables, ce qui les sépare est la **phase** : pic en juillet contre septembre |
 | 7 | le profil industriel présenté comme un résultat alors qu'il est estimé sur **4 nœuds** | carnet 1, cellule 18 | réserve explicite ; c'est le bruit de quatre compteurs |
+| 7bis | la réserve du point 7 se justifiait par le poids de l'industriel (2,2 % de la demande) — argument faible et inexact quant au risque réel | carnets 1 et `01bis`, §4 | une cellule compte les catégories : **aucune jonction n'en porte trois**, 561 portent exactement résidentiel + commercial, et l'industriel vaut **exactement 0 en zone A+B**. Les quatre nœuds industriels sont en zone C et tous équipés : la forme la plus bruitée n'est **jamais extrapolée** |
 | 8 | « ce qui resterait à essayer » omettait le pas de réancrage, pourtant désigné comme le plus gros levier restant, et surestimait les réducteurs | carnet 2, bilan | réordonné ; les réducteurs agiraient sur un biais qui ne vaut plus que +0,018 m |
 | 9 | la docstring de `simuler` décrivait son test avec les mauvaises durées (24 h/48 h au lieu de 12 h/24 h) | `reseau.py` | corrigé, avec le nom du test |
 
