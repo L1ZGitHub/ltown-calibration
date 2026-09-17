@@ -1,7 +1,7 @@
-"""Quatre leviers que la calibration de référence laisse de côté.
+"""Cinq leviers que la calibration de référence laisse de côté.
 
 Le modèle de demande de l'équipe « Under Pressure » et son ajustement de rugosité traitent la
-partie « consommation » du problème. Il reste quatre choses que les capteurs disent et que le
+partie « consommation » du problème. Il reste cinq choses que les capteurs disent et que le
 modèle, tel qu'il est livré, n'écoute pas :
 
 1. **La pompe suit une consigne, pas la réalité.** Le fichier de réseau pilote `PUMP_1` par deux
@@ -24,6 +24,9 @@ modèle, tel qu'il est livré, n'écoute pas :
 4. **Le niveau de la demande en zone A+B est mesuré, pas à modéliser.** La somme des débits
    d'entrée moins le débit de la pompe donne, à chaque pas, la consommation totale de A+B. Aucun
    modèle de demande ne battra une mesure directe ; autant recaler dessus.
+5. **Sur les 82 jonctions équipées, la demande est mesurée et le modèle l'écrase quand même.**
+   L'équation (2) est appliquée aux 782 jonctions sans exception, alors que 82 d'entre elles ont
+   leur série connue pas par pas. `injecter_compteurs` les remet à leur valeur lue.
 
 Réserve à garder en tête pour le levier 4 : la mesure d'entrée contient **tout** ce qui sort du
 réseau, fuites comprises. Recaler la demande sur le bilan de masse absorbe donc dans la demande
@@ -253,18 +256,27 @@ def ajuster_reservoir(D: np.ndarray, noeuds: list[str], wn, annee: int, *,
 
 # ------------------------------------------- levier 4 : recalage du niveau sur le bilan de masse
 def recaler_zone_ab(D: np.ndarray, noeuds: list[str], wn, annee: int,
-                    periode: int = R.PAS_SEMAINE) -> np.ndarray:
+                    periode: int = R.PAS_SEMAINE, debut: int = 0,
+                    cible: pd.Series | None = None) -> np.ndarray:
     """Recale, par blocs de `periode` pas, le **niveau** de la demande A+B sur le bilan de masse.
 
     Seul le niveau d'ensemble est touché : à l'intérieur d'un bloc, la répartition entre nœuds et
     la forme temporelle viennent toujours du modèle de demande. On ne remplace donc pas le
     modèle, on lui impose la seule quantité que les débitmètres mesurent directement.
 
+    `debut` dit à quel pas de l'année commence `D`, pour aligner la mesure sur une fenêtre.
+
+    `cible` remplace le bilan de masse par une autre série de référence — par exemple le bilan
+    **moins les fuites publiées**, qui donne la consommation réelle de la zone. Le bilan brut
+    contient les fuites et les verse donc dans la demande ; une cible sans fuite ne le fait pas,
+    mais elle n'est disponible que sur une année dont on connaît déjà les fuites.
+
     Renvoie une copie ; `D` n'est pas modifié.
     """
     z = R.zones(wn)
     est_ab = np.array([z[n] == "AB" for n in noeuds])
-    mesure = demande_ab_mesuree(annee).to_numpy()[:len(D)]
+    serie = demande_ab_mesuree(annee) if cible is None else cible
+    mesure = np.asarray(serie, float)[debut:debut + len(D)]
     E = np.array(D, copy=True)
     for a in range(0, len(D), periode):
         b = min(a + periode, len(D))
@@ -272,4 +284,57 @@ def recaler_zone_ab(D: np.ndarray, noeuds: list[str], wn, annee: int,
         cible = float(np.nansum(mesure[a:b]))
         if modele > 0 and np.isfinite(cible) and cible > 0:
             E[a:b][:, est_ab] *= cible / modele
+    return E
+
+# ------------------------------------- levier 5 : la mesure elle-même là où le compteur existe
+def injecter_compteurs(D: np.ndarray, noeuds: list[str], annee: int,
+                       debut: int = 0) -> np.ndarray:
+    """Remplace la demande **modélisée** par la demande **mesurée** sur les jonctions équipées.
+
+    Le modèle de demande applique l'équation (2) aux 782 jonctions, y compris aux 82 qui portent
+    un compteur — dont la série est pourtant connue pas par pas. C'est une perte sèche : sur ces
+    nœuds, aucune forme estimée ne vaut la mesure. Cette fonction les remet à leur valeur lue.
+
+    Les 10 jonctions de la zone C sans compteur gardent leur demande modélisée : leur nominal
+    cumulé vaut 1,84 m³/h, soit 6 % de la zone.
+
+    `debut` dit à quel pas de l'année commence `D`, pour aligner la mesure sur une fenêtre.
+
+    Renvoie une copie ; `D` n'est pas modifié.
+    """
+    amr = R.charger_amr(annee).iloc[debut:debut + len(D)]
+    E = np.array(D, copy=True)
+    index = {n: k for k, n in enumerate(noeuds)}
+    colonnes = [c for c in amr.columns if c in index]
+    cibles = [index[c] for c in colonnes]
+    E[:, cibles] = amr[colonnes].to_numpy()[:len(E)].astype(E.dtype, copy=False)
+    return E
+
+
+# --------------------------------------- reproduire l'année telle qu'elle a été, fuites comprises
+def poser_fuites_publiees(D: np.ndarray, noeuds: list[str], wn, annee: int,
+                          debut: int = 0) -> np.ndarray:
+    """Ajoute le débit de fuite publié comme demande supplémentaire, au nœud amont de sa conduite.
+
+    Le modèle de demande ne contient aucune fuite : il est construit sur des compteurs de
+    consommation, qu'une conduite percée ne traverse jamais. Pour **reproduire** l'année plutôt
+    que de la détecter, il faut donc les remettre — et à leur place, pas diluées sur la zone.
+
+    Une fuite est posée en un point de sa conduite ; on la porte au nœud amont, faute de mieux. Le
+    débit vient du fichier publié, donc cette fonction ne sert qu'à valider : elle utilise la
+    réponse. Elle ne peut pas servir à détecter, ni à travailler sur une année sans fichier.
+
+    Renvoie une copie ; `D` n'est pas modifié.
+    """
+    lk = R.charger_fuites(annee)
+    if lk is None:
+        return np.array(D, copy=True)
+    E = np.array(D, copy=True)
+    index = {n: k for k, n in enumerate(noeuds)}
+    t = lk.to_numpy()[debut:debut + len(E)]
+    for j, conduite in enumerate(lk.columns):
+        lien = wn.get_link(conduite)
+        noeud = next((n for n in (lien.start_node_name, lien.end_node_name) if n in index), None)
+        if noeud is not None:
+            E[:, index[noeud]] += t[:, j].astype(E.dtype, copy=False)
     return E

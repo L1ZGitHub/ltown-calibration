@@ -11,7 +11,7 @@ pour poser la question qui nous intéresse ici :
 > Un modèle hydraulique livré avec des valeurs de conception, jusqu'où peut-on le rapprocher
 > de la réalité, et quel paramètre paie vraiment ?
 
-Cinq carnets y répondent, et les deux premiers existent en deux découpages.
+Six carnets y répondent, et les deux premiers existent en deux découpages.
 
 | Carnet | Contenu |
 |---|---|
@@ -20,12 +20,16 @@ Cinq carnets y répondent, et les deux premiers existent en deux découpages.
 | `notebooks/02_ameliorations.ipynb` | Quatre leviers que cette méthode laisse de côté, tous lus dans les capteurs : l'état réel de la pompe, l'ancrage du niveau du réservoir, sa section réelle, et le niveau de demande donné par le bilan de masse. |
 | `notebooks/02bis_ameliorations_pas_a_pas.ipynb` | Le second carnet dans le même découpage fin. Mêmes sorties. |
 | `notebooks/03_generer_des_fuites.ipynb` | À quoi sert le modèle calibré : poser une fuite par émetteur, mesurer la baisse de pression aux 33 capteurs, et la comparer à l'erreur du modèle. |
-| `notebooks/04_bilan_par_zone.ipynb` | Sans simuler : la zone C a toute sa frontière instrumentée, donc son bilan de masse donne directement le débit de fuite. La zone A+B, non — et on mesure de combien elle en est loin. |
+| `notebooks/04_bilan_par_zone.ipynb` | Sans simuler : la zone C a toute sa frontière instrumentée, donc son bilan de masse donne directement le débit de fuite. La zone A+B, non — et on mesure de combien elle en est loin, puis on s'en sert pour valider le modèle de demande du carnet 1. |
 | `notebooks/05_regroupement.ipynb` | Le résultat négatif du carnet 2 venait-il du paramètre ou du regroupement ? Comparaison des groupes par diamètre et par zone × coefficient × diamètre, sur trois fenêtres. |
+| `notebooks/06_le_modele_calibre.ipynb` | **La recette, dans l'ordre, avec les réponses des cinq autres.** Conditions aux limites lues, compteurs injectés, demande de A+B déduite, puis un seul ajustement de rugosité. Se termine en mesurant pourquoi un modèle de simulation et un modèle de détection ne sont pas le même objet. |
 
 Les carnets `bis` ne sont pas un résumé ni une suite : c'est **le même code et les mêmes
 résultats**, découpés plus finement. Pour découvrir le travail, commencez par eux ; les versions
 courtes se relisent plus vite une fois qu'on sait ce qu'on y cherche.
+
+Le carnet 6 est le seul à ne rien démontrer : il **applique**. Si vous cherchez la marche à suivre
+plutôt que le raisonnement qui y mène, commencez — et finissez — par lui.
 
 Deux documents accompagnent le code : [`GUIDE.md`](GUIDE.md) explique le travail dans l'ordre où
 il a été fait, code à l'appui, et se lit d'une traite ; [`CORRECTIONS.md`](CORRECTIONS.md) liste
@@ -78,8 +82,13 @@ d̂ᵢ(t) = Σⱼ d̄ᵢⱼ · Tⱼ(t) · Sⱼ(t)
 ```
 
 `d̄ᵢⱼ` est la demande nominale du nœud `i` pour le type `j`, lue dans le fichier de réseau — où
-chaque jonction porte trois lignes de demande, une par type. Les formes `Tⱼ·Sⱼ` sont obtenues en
-résolvant cette même équation à l'envers là où l'on a la mesure.
+chaque jonction porte une ligne de demande par type présent, jamais les trois. Les formes `Tⱼ·Sⱼ`
+sont obtenues en résolvant cette même équation à l'envers là où l'on a la mesure.
+
+Ce modèle passe un contrôle qu'on ne lui demande nulle part ailleurs. Les 82 compteurs sont tous
+en zone C, qui porte 12 % de la demande ; appliquées aux 690 nœuds non mesurés de A+B, les formes
+qu'on en tire retrouvent la consommation réelle de la zone à **+0,2 %** sur l'année — 157,0 m³/h
+contre 156,7 une fois les fuites publiées retirées du bilan des débitmètres (carnet 4, §8).
 
 **Les rugosités** sont ensuite ajustées par moindres carrés non linéaires, non pas conduite par
 conduite mais par **six groupes** de diamètre comparable. Le carnet 2 explique pourquoi ce
@@ -166,9 +175,10 @@ mêmes variantes évaluées sur les **105 120 pas de l'année 2018**, aux 33 cap
 **−68 % de RMSE, −60 % de dispersion.** Cinq remarques de lecture :
 
 * **ce chiffre annuel est un majorant de l'erreur de modèle, pas une mesure de celle-ci.** L'année
-  porte des fuites — en moyenne un septième de la consommation de la zone A+B — et le recalage sur
-  le bilan de masse les absorbe dans la demande : leur volume est réparti sur 690 nœuds au lieu de
-  sortir en un point. Cette mauvaise localisation est spatiale, donc elle se retrouve dans la
+  porte des fuites — 18,2 m³/h en moyenne, soit 10 % de la consommation de la zone A+B — et le
+  recalage sur le bilan de masse les absorbe dans la demande : leur volume est réparti sur 690
+  nœuds au lieu de sortir en un point. Le carnet 4 chiffre l'opération : le modèle de demande était
+  juste à 0,2 % près avant le recalage, qui lui ajoute donc exactement le volume des fuites. Cette mauvaise localisation est spatiale, donc elle se retrouve dans la
   dispersion. Chercher à faire descendre ce chiffre plus bas reviendrait d'ailleurs à absorber le
   signal de fuite, c'est-à-dire à détruire ce qu'un détecteur cherche ;
 
