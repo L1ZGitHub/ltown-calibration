@@ -90,7 +90,10 @@ demande ne bat une mesure.
 Restent deux paramètres que l'on croit calibrables. Les **rugosités** ne donnent presque aucune
 prise dans un réseau où la conduite médiane perd quatre millimètres de charge : ajustées, elles
 retirent du biais et ne touchent pas à la dynamique, ce qu'une fenêtre de transfert et une
-évaluation sur l'année entière montrent chacune à leur manière. La **section du réservoir**, elle,
+évaluation sur l'année entière montrent chacune à leur manière. Pire : refaire le même ajustement
+sur deux fenêtres également propres, à trois jours d'écart, donne des coefficients qui vont d'une
+borne à l'autre de l'intervalle autorisé — le paramètre n'est pas identifié, et poser des bornes
+serrées ne fait que le remplacer par la borne. La **section du réservoir**, elle,
 demande deux passes : le bilan volumique par demi-cycle de pompe paraît la mesurer mais confond
 en réalité la section et la consommation de la zone alimentée (colinéaires à 0,997) ; simuler la
 trajectoire du niveau au lieu de régresser des demi-cycles lève l'ambiguïté — à condition de
@@ -126,9 +129,7 @@ qui comptent plus que cette coïncidence :
 * **cette semaine ne porte aucune fuite.** C'est la seule de l'année dans ce cas — sur les
   51 autres, le débit de fuite va jusqu'à un cinquième de la consommation de la zone A+B. Le
   chiffre est donc obtenu sur la fenêtre la plus propre qui soit, ce qui rend la comparaison
-  légitime (c'est le protocole de la référence) mais ne dit rien des autres semaines. Le second
-  carnet montre qu'un ajustement de rugosité réglé sur une fenêtre fuyarde achète la fuite avec
-  de la friction ;
+  légitime (c'est le protocole de la référence) mais ne dit rien des autres semaines ;
 
 * **la rugosité seule n'y suffit pas.** Ajustée par-dessus le modèle de demande et les commandes
   du fichier — la configuration la plus proche de ce que décrit la référence — elle plafonne à
@@ -163,8 +164,8 @@ mêmes variantes évaluées sur les **105 120 pas de l'année 2018**, aux 33 cap
   signal de fuite, c'est-à-dire à détruire ce qu'un détecteur cherche ;
 
 * **la calibration de rugosité tient sur l'année, mais seulement sur la RMSE.** Six coefficients
-  réglés sur une semaine de janvier retirent le biais de 12 cm sur les douze mois et laissent la
-  dispersion inchangée à un demi pour cent près (0,1578 → 0,1573). Les écarts de ±13 à ±28 % que
+  réglés sur la première semaine retirent le biais de 12 cm sur les douze mois et laissent la
+  dispersion inchangée à un demi pour cent près (0,1578 → 0,1573). Les écarts de −14 % à +10 % que
   montre le tableau de transfert sur des fenêtres de sept jours se compensent sur l'année :
   c'était du bruit d'ajustement, ni gain ni perte ;
 

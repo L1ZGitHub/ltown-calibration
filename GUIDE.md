@@ -436,6 +436,11 @@ sol = least_squares(critere, x0, method="trf", bounds=(60.0, 160.0),
 > applique donc Huber à la main, sur les seuls résidus de mesure, pour que `α‖x−x₀‖²` reste
 > quadratique. Voir `CORRECTIONS.md`, défaut B.
 
+**Sur quelle fenêtre ajuster ?** Sur la **première semaine de l'année**, et non sur la fenêtre
+d'évaluation. C'est ce que fait la référence, et la section 14 montre que c'est aussi la seule
+semaine de 2018 qui ne porte aucune fuite. Les carnets ont donc deux variables distinctes :
+`DEBUT` (évaluation, juillet) et `DEBUT_ENTR` (ajustement, semaine 1).
+
 `simulateur` est une **fermeture** : elle prend un dictionnaire `{groupe: coefficient}` et rend les
 pressions aux capteurs. Toute la configuration hydraulique y est enfermée, ce qui permettra
 d'employer exactement la même routine plus tard, dans des conditions aux limites différentes.
@@ -450,40 +455,40 @@ def simulateur(coefficients):
 ### Le résultat
 
 ```
-67 simulations en 64 s
-RMSE sur la fenêtre d'ajustement : 0.3342 → 0.2368 m
+55 simulations en 53 s
+RMSE sur la fenêtre d'ajustement : 0.2455 → 0.2099 m
 
-D100      88.5
-D150     156.5
-D160     160.0
-D200     127.3
-D225     160.0
-D<=75    160.0
+D100     112.1
+D150     137.1
+D160     158.3
+D200     124.8
+D225      70.0
+D<=75    157.6
 
-groupes arrêtés sur une borne : ['D225', 'D<=75']
+groupes arrêtés sur une borne : aucun
 ```
 
 Deux choses à relever tout de suite.
 
-**Le coût.** On a demandé `max_nfev=12` et il y a eu **67 simulations**. C'est normal : chaque
+**Le coût.** On a demandé `max_nfev=12` et il y a eu **55 simulations**. C'est normal : chaque
 colonne du jacobien demande une évaluation supplémentaire, et `max_nfev` ne compte que les
 évaluations principales. Chaque évaluation est une simulation hydraulique complète.
 
-**`aux_bornes`.** Deux groupes se sont arrêtés à 160, la valeur maximale autorisée. Ce ne sont pas
-n'importe lesquels : ce sont les deux plus petits, 12 et 5 conduites. Un paramètre auquel les
-données ne disent rien ne reste pas au repos — il part au bout de sa contrainte. C'est un
-diagnostic, et c'est pour ça que `ajuster` renvoie cette liste.
+**`aux_bornes`.** Ici, aucun groupe ne touche sa contrainte. Mais regardez D225 : 70, contre 140 au
+départ, alors que ce groupe ne compte que **12 conduites**. Un paramètre auquel les données ne
+disent rien ne reste pas au repos, et la section 14 montre le même ajustement rendre quatre
+groupes sur six collés à leur borne — sur une autre fenêtre, avec le même code. C'est pour cela que `ajuster` renvoie cette liste.
 
 ### Et sur les pressions ?
 
 ```
                       biais_m  dispersion_m  rmse_m
 modèle de demande      0.2022        0.2526  0.3235
-+ rugosités ajustées  -0.0067        0.2630  0.2631
++ rugosités ajustées   0.0195        0.2584  0.2591
 ```
 
-Regardez bien. Le **biais s'effondre** : 0,2022 → −0,0067, il ne reste presque rien. La
-**dispersion, elle, se dégrade légèrement** : 0,2526 → 0,2630.
+Regardez bien. Le **biais s'effondre** : 0,2022 → 0,0195, il ne reste presque rien. La
+**dispersion, elle, se dégrade légèrement** : 0,2526 → 0,2584.
 
 La RMSE s'améliore beaucoup (−19 %). Le modèle, lui, ne s'est pas amélioré du tout.
 
@@ -920,42 +925,32 @@ identifier.
 
 ### Le test qui tranche : est-ce que ça transfère ?
 
-Ajustons quand même les six coefficients, dans les bonnes conditions aux limites :
+Ajustons les six coefficients sur **juillet**, la fenêtre qu'on évalue, dans les bonnes conditions
+aux limites. C'est le choix naturel, et c'est celui que ce dépôt faisait avant de mesurer ce que
+juillet contient :
 
 ```
-73 simulations en 83 s ; RMSE d'ajustement 0.2376 → 0.1412 m
 D100      72.0
 D150     160.0
 D160     160.0
-D200     150.1
+D200     150.0
 D225     160.0
 D<=75    160.0
 groupes arrêtés sur une borne : ['D150', 'D160', 'D225', 'D<=75']
 ```
 
-**Quatre groupes sur six au bout de leur contrainte.** Sur la fenêtre d'ajustement, la RMSE tombe
-de 0,2376 à 0,1412 — c'est spectaculaire.
+**Quatre groupes sur six au bout de leur contrainte**, et le plus gros, D100, divisé par deux. Sur
+la fenêtre d'ajustement, la RMSE tombe spectaculairement.
 
 Mais un seul test tranche pour une calibration : **est-ce que ça transfère ?** Jugeons les mêmes
-coefficients sur des périodes qui n'ont servi à rien :
+coefficients sur des périodes qui n'ont servi à rien. Variation de dispersion, sur trois fenêtres
+de sept jours :
 
-```
-                                          biais_m  dispersion_m  rmse_m  gain_dispersion
-juillet (fenêtre d'ajustement)
-  sans ajustement                          0.1515        0.1882  0.2417           0.0000
-  un facteur global ×0.95                  0.0589        0.1936  0.2023           0.0283
-  six coefficients ajustés                -0.0019        0.1634  0.1634          -0.1322
-octobre (jamais vu)
-  sans ajustement                          0.1805        0.2141  0.2800           0.0000
-  six coefficients ajustés                 0.0222        0.2076  0.2088          -0.0303
-janvier (jamais vu)
-  sans ajustement                          0.0508        0.0803  0.0950           0.0000
-  six coefficients ajustés                -0.0391        0.1029  0.1101           0.2815
-```
-
-Lisez la dernière colonne, et oubliez la RMSE. Les six coefficients retirent **13 % de dispersion
-sur la fenêtre qui a servi à les régler**, **3 % en octobre** — la saison voisine — et en
-**ajoutent 28 % en janvier**.
+| évaluée sur | variation de dispersion |
+|---|---|
+| **juillet** — la fenêtre d'ajustement | **−13,2 %** |
+| octobre — la saison voisine | −3,0 % |
+| **semaine 1** — jamais vue, et sans fuite | **+10,0 %** |
 
 Le gain s'évapore à mesure qu'on s'éloigne de la fenêtre d'ajustement, puis **change de signe**.
 C'est la signature du sur-ajustement, et elle n'est lisible que parce qu'on a pris la peine
@@ -986,48 +981,74 @@ quoi on a réglé (`reseau.charge_de_fuite`) :
 | **juillet** | **12,3** | **7 %** | **ajustement** |
 | octobre | 34,3 | 20 % | transfert |
 
-On règle donc sur une fenêtre qui porte 12 m³/h de fuite, et on évalue sur une fenêtre qui n'en
-porte aucune. Or une fuite et un excès de friction produisent **le même effet** — une baisse de
-pression en aval — et l'optimiseur, qui n'a que la rugosité sous la main, ne peut pas les
-distinguer. Il paie la fuite avec de la rugosité.
+La première semaine est donc la seule fenêtre propre de l'année, et c'est déjà celle du protocole
+publié : c'est sur elle qu'on règle. L'idée derrière ce choix est qu'une fuite et un excès de
+friction produisent **le même effet** — une baisse de pression en aval — et qu'un optimiseur qui
+n'a que la rugosité sous la main ne peut pas les distinguer : il paierait la fuite avec de la
+rugosité.
 
-Vérifiable en une simulation : réglons sur janvier, la fenêtre propre.
+C'est une hypothèse. Mettons-la à l'épreuve, parce qu'elle ne survit pas au test.
 
-| groupe | conduites | départ | réglé sur **juillet** (12 m³/h) | réglé sur **janvier** (propre) |
-|---|---|---|---|---|
-| **D100** | **705** | 137 | **72** | **137** |
-| D150 | 103 | 138 | 160 | 137 |
-| D160 | 16 | 140 | 160 | **75** |
-| D200 | 64 | 140 | 150 | 128 |
-| D225 | 12 | 140 | 160 | **76** |
-| D<=75 | 5 | 135 | 160 | 109 |
+### Le même ajustement sur trois fenêtres
 
-Sur la fenêtre propre, l'optimiseur **ne touche pas** aux deux gros groupes — D100 reste à sa
-valeur de fichier. Sur la fenêtre fuyarde, il fait tomber D100 de 137 à 72, c'est-à-dire qu'il
-rend 705 conduites sur 905 beaucoup plus rugueuses : exactement ce qu'il faut pour fabriquer la
-chute de pression qu'une fuite produit.
+Un coefficient de rugosité est censé décrire une conduite, pas une semaine. Refaisons donc
+exactement le même ajustement sur trois fenêtres, dont **deux sans fuite** : la semaine 1, et
+janvier trois jours plus tard.
 
-**Ce sont deux pathologies distinctes**, qu'il ne faut pas confondre :
+| groupe | conduites | départ | **semaine 1** (propre) | **janvier** (propre) | **juillet** (12 m³/h) |
+|---|---|---|---|---|---|
+| **D100** | **705** | 137 | **82** | **137** | **72** |
+| D150 | 103 | 138 | 160 | 137 | 160 |
+| D160 | 16 | 140 | **160** | **75** | 160 |
+| D200 | 64 | 140 | 146 | 128 | 150 |
+| D225 | 12 | 140 | 160 | 76 | 160 |
+| D<=75 | 5 | 135 | 160 | 109 | 160 |
 
-| ce qui dérape | quand | pourquoi | remède |
+**Les deux fenêtres propres ne sont pas d'accord entre elles.** D100, qui couvre 705 conduites sur
+905, vaut 82 sur l'une et 137 sur l'autre. D160 passe d'une extrémité à l'autre de l'intervalle
+autorisé, sur les mêmes seize conduites, à trois jours d'écart.
+
+Et l'écart ne sépare pas le propre du fuyard : **la semaine 1 répond comme juillet**, c'est
+janvier qui est à part. L'explication par la fuite ne tient donc pas telle quelle. Ce qu'on
+observe est plus simple et plus grave — un paramètre qui change autant selon la fenêtre **n'est
+pas mesuré**. Le tableau des pertes de charge ci-dessus l'annonçait : le critère est presque plat,
+donc l'optimiseur suit le bruit de la fenêtre.
+
+Le transfert raconte la même chose (variation de dispersion, en %) :
+
+| évaluée sur ↓ — réglée sur → | semaine 1 | janvier | juillet |
 |---|---|---|---|
-| le **gros** groupe, 705 conduites | fenêtre fuyarde | l'information est **fausse** | changer de fenêtre |
-| les **petits** groupes, 12 à 16 conduites | partout | il n'y a **aucune** information | contraindre le paramètre |
+| semaine 1 | −3,1 | **−10,6** | **+10,0** |
+| juillet | −13,8 | **+4,6** | −13,2 |
+| octobre | −4,1 | **+8,7** | −3,0 |
+
+Chaque réglage aide les fenêtres qui ressemblent à la sienne et dégrade les autres. Que la
+semaine 1 les améliore toutes les trois est une coïncidence heureuse, pas une propriété du
+réglage.
 
 ### Ce que les garde-fous valent, mesuré
 
-Le second remède se teste. Deux façons de dire « la vérité est près de la valeur du fichier » —
-une contrainte dure et une pénalité molle. Réglage sur juillet, variation de dispersion en % :
+D'où vient alors ce −13 % que deux fenêtres sur trois trouvent en juillet ? Interdisons au modèle
+de trop s'éloigner du fichier et regardons ce qu'il en reste. Deux façons de le dire — une
+contrainte dure (bornes à ±10 % de ce que le groupe porte déjà) et une pénalité molle (Tikhonov) :
 
-| | janvier | **juillet** (ajustement) | octobre |
+| réglage | semaine 1 | juillet | octobre |
 |---|---|---|---|
-| tel quel — bornes (60, 160), α = 0 | **+28,1** | −13,2 | −3,0 |
-| bornes à ±10 % du fichier | −12,6 | **−0,1** | +9,0 |
-| régularisation α = 0,01 | −14,6 | +2,5 | +9,0 |
-| régularisation α = 0,1 | −14,9 | +2,0 | +5,7 |
+| semaine 1, tel quel (60–160, α = 0) | −3,1 | **−13,8** | −4,1 |
+| juillet, tel quel (60–160, α = 0) | +10,0 | **−13,2** | −3,0 |
+| **semaine 1 + bornes à ±10 %** | −12,8 | **−3,5** | +4,4 |
+| **juillet + bornes à ±10 %** | −11,7 | **−0,1** | +9,0 |
+| juillet + régularisation α = 0,01 | −11,6 | +2,5 | +9,0 |
+| juillet + régularisation α = 0,1 | −10,6 | +2,0 | +5,7 |
 
-**Le gain de juillet disparaît dès qu'on interdit au modèle de s'éloigner du fichier.** Ce n'était
-donc pas de la calibration.
+Il n'en reste presque rien — **et pas seulement pour juillet**. Sous bornes, les deux fenêtres
+tombent sur le même vecteur (D100 à 108, tout le reste collé à 154, c'est-à-dire sur les bornes) :
+ce n'est plus la donnée qui décide, c'est la contrainte. Et le −13,8 % que la fenêtre **propre**
+obtenait sur juillet ne survit pas mieux que le −13,2 % de la fenêtre fuyarde.
+
+**La conclusion est négative, et plus large que la fuite.** Il n'y a pas assez de friction dans ce
+réseau pour identifier six coefficients, quelle que soit la fenêtre. Le §15 le confirme sur douze
+mois : l'ajustement y déplace la dispersion de 0,3 %.
 
 Et l'encadrement publié ne contraint rien ici : le fichier ne contient que **deux** coefficients,
 120 sur 119 conduites et 140 sur 786, si bien que (60, 160) autorise −56 % à +17 % autour du
@@ -1035,17 +1056,15 @@ départ. `rugosite.bornes_par_groupe` construit un encadrement à partir de ce q
 porte réellement — sous l'hypothèse, à énoncer comme telle, que les paramètres du jeu de données
 ont été écartés d'au plus 10 % de leur valeur vraie.
 
-**Bornes ou Tikhonov ?** Les deux marchent, mais ils n'encodent pas le même statut de
-connaissance. Une borne encode un **fait** et ne se règle pas ; α encode une **préférence** et
-demanderait d'être réglé — sur une fenêtre, dont on vient de voir que le choix est précisément le
-problème. Sur ce réseau, la bonne fenêtre existe : la première semaine de 2018 ne porte aucune
-fuite, et c'est déjà celle du protocole publié.
+**Bornes ou Tikhonov ?** Ils n'encodent pas le même statut de connaissance. Une borne encode un
+**fait** et ne se règle pas ; α encode une **préférence** et demanderait d'être réglé — sur une
+fenêtre, dont on vient de voir qu'elle décide du résultat.
 
 **Quatre règles pratiques en sortent**, qui ne valent pas que pour ce réseau :
 
-1. **la fenêtre d'ajustement compte plus que la façon de contraindre le paramètre.** Aucune borne,
-   aucune régularisation ne rattrape une fenêtre qui contient autre chose que ce qu'on croit y
-   lire — elles en annulent seulement le gain apparent ;
+1. **un paramètre se refait sur plusieurs fenêtres avant d'être cru.** S'il change de valeur de
+   l'une à l'autre, il n'est pas identifié, et aucune borne ne le rendra identifiable — elle ne
+   fera que le remplacer par la borne ;
 2. une calibration se juge **sur une période qui n'a pas servi à la régler**, et de préférence
    dans un autre régime de fonctionnement ;
 3. des paramètres physiquement invraisemblables sont **un diagnostic, pas un détail** — ils
@@ -1073,7 +1092,7 @@ Voici les mêmes variantes sur les **105 120 pas de l'année**, aux 33 capteurs 
 
 * **la calibration de rugosité tient sur l'année, mais seulement sur la RMSE.** Six coefficients
   réglés sur une semaine de janvier retirent le biais de 12 cm sur douze mois et laissent la
-  dispersion inchangée à un demi pour cent près (0,1578 → 0,1573). Les écarts de ±13 à ±28 % du
+  dispersion inchangée à un demi pour cent près (0,1578 → 0,1573). Les écarts de −14 % à +10 % du
   tableau de transfert se compensent sur l'année : c'était du bruit d'ajustement, ni gain ni perte ;
 * **le modèle de demande rapporte moins sur l'année** (−7 % de dispersion) que sur la semaine de
   juillet (−20 %). Son apport est saisonnier, et le chiffrer sur une fenêtre choisie le surestime ;
@@ -1250,9 +1269,10 @@ affirmations y sont chiffrées presque partout.
 2. **les groupes de rugosité sont formés par diamètre, faute de mieux.** La référence les forme par
    matériau et âge — une information que le fichier ne porte pas. C'est une limite de la
    reproduction, pas un choix, et elle explique en partie les groupes arrêtés sur une borne ;
-3. **les six coefficients sont réglés sur une seule fenêtre.** Sur sept jours le transfert donne
-   −13 %, −3 % et +28 % selon la saison ; sur l'année ces écarts se compensent. Le conclure
-   demandait d'évaluer sur l'année ;
+3. **les six coefficients ne sont pas identifiés.** Deux fenêtres également propres, à trois jours
+   d'écart, donnent des coefficients qui vont d'une borne à l'autre (section 14) ; sur sept jours
+   le transfert varie de −14 % à +10 % selon la saison, et sur l'année ces écarts se compensent à
+   0,3 % près. Ce qu'on publie ici, c'est donc un recentrage, pas une mesure de friction ;
 4. **la tendance est estimée par un filtre qui l'atténue** de `sinc(fenêtre/période)` — négligeable
    à l'échelle annuelle, 2,5 % à deux mois ;
 5. **le recalage sur le bilan de masse absorbe les fuites dans la demande** (section 13). Le

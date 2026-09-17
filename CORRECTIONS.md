@@ -1,14 +1,15 @@
 # Journal des corrections
 
-Onze endroits où le texte du dépôt n'énonçait pas ce que le code faisait, et deux défauts de
-code. Tous sont corrigés ; ce document garde la trace de ce qui a été trouvé, parce que plusieurs
-de ces écarts changeaient une conclusion et pas seulement une phrase.
+Onze endroits où le texte du dépôt n'énonçait pas ce que le code faisait, un défaut de code, et
+une conclusion que les données ne soutenaient pas. Tous sont corrigés ; ce document garde la trace
+de ce qui a été trouvé, parce que trois de ces écarts changeaient un résultat et pas seulement une
+phrase.
 
 Pour comprendre le travail lui-même, voir [`GUIDE.md`](GUIDE.md).
 
 ---
 
-## Les deux qui changeaient un résultat
+## Les trois qui changeaient un résultat
 
 ### A. La régularisation était annoncée comme active ; elle ne l'était pas
 
@@ -17,9 +18,8 @@ Pour comprendre le travail lui-même, voir [`GUIDE.md`](GUIDE.md).
 carnet 1 écrivait pourtant « *les trois garde-fous sont actifs par défaut* », et la docstring de
 module « *`ajuster` les reproduit tous les trois* ».
 
-Ce n'était pas qu'une formule : avec la régularisation activée, le chiffre le plus frappant du
-paragraphe sur les rugosités — **+28 % de dispersion en janvier**, cité comme la signature du
-sur-ajustement — devient bien plus modeste. Le texte décrivait une méthode dont les résultats
+Ce n'était pas qu'une formule : avec la régularisation activée, le chiffre qui servait alors de
+signature du sur-ajustement — **+28 % de dispersion en janvier** — devenait bien plus modeste. Le texte décrivait une méthode dont les résultats
 auraient été différents.
 
 **Corrigé** : le texte dit maintenant lesquels sont actifs et pourquoi, et le carnet 2 mesure ce
@@ -38,6 +38,28 @@ il fixait à la fois la force de la pénalité et de quel côté du seuil de Hub
 transformation conserve le signe, pour que le jacobien numérique reste correct, et vaut l'identité
 sous le seuil — **à `tikhonov=0` le résultat est rigoureusement inchangé**, ce qui a été vérifié
 coefficient par coefficient avant d'aller plus loin.
+
+### C. La fuite avait bon dos : le vrai problème est que le paramètre n'est pas identifiable
+
+Le §7 du carnet 2 affirmait qu'un ajustement réglé sur une fenêtre fuyarde « achète la fuite avec
+de la rugosité », et que régler sur une fenêtre propre suffisait à l'éviter. La première moitié est
+une hypothèse raisonnable ; la seconde est fausse, et le test qui le montre n'avait pas été fait.
+
+Il tient en un ajustement de plus : refaire **le même réglage sur une seconde fenêtre sans fuite**,
+trois jours après la première. Les deux ne sont pas d'accord — D100, qui couvre 705 conduites sur
+905, vaut 82 sur l'une et 137 sur l'autre ; D160 passe d'une extrémité à l'autre de l'intervalle
+autorisé. Et la fenêtre propre répond comme la fenêtre **fuyarde**, pas comme l'autre fenêtre
+propre : la fuite n'est donc pas ce qui pilote le résultat.
+
+Le contrôle symétrique le confirme. Sous bornes à ±10 %, les deux réglages tombent sur le même
+vecteur — celui des bornes — et le gain de 13,8 % que la fenêtre propre obtenait en juillet n'y
+survit pas mieux (−3,5 %) que celui de la fenêtre fuyarde (−0,1 %). Les deux étaient le même
+artefact.
+
+**Corrigé** : le carnet 2 exécute désormais les trois ajustements et le contrôle, et le §7 comme la
+section 14 du guide énoncent le résultat tel qu'il est — sur ce réseau la rugosité n'est pas
+identifiable, quelle que soit la fenêtre. L'hypothèse de la fuite y est présentée pour ce qu'elle
+était : une hypothèse, mise à l'épreuve et écartée.
 
 ---
 
