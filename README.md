@@ -22,14 +22,16 @@ Six carnets y répondent, et les deux premiers existent en deux découpages.
 | `notebooks/03_generer_des_fuites.ipynb` | À quoi sert le modèle calibré : poser une fuite par émetteur, mesurer la baisse de pression aux 33 capteurs, et la comparer à l'erreur du modèle. |
 | `notebooks/04_bilan_par_zone.ipynb` | Sans simuler : la zone C a toute sa frontière instrumentée, donc son bilan de masse donne directement le débit de fuite. La zone A+B, non — et on mesure de combien elle en est loin, puis on s'en sert pour valider le modèle de demande du carnet 1. |
 | `notebooks/05_regroupement.ipynb` | Le résultat négatif du carnet 2 venait-il du paramètre ou du regroupement ? Comparaison des groupes par diamètre et par zone × coefficient × diamètre, sur trois fenêtres. |
-| `notebooks/06_le_modele_calibre.ipynb` | **La recette, dans l'ordre, avec les réponses des cinq autres.** Conditions aux limites lues, compteurs injectés, demande de A+B déduite, puis un seul ajustement de rugosité. Se termine en mesurant pourquoi un modèle de simulation et un modèle de détection ne sont pas le même objet. |
+| `notebooks/06_le_modele_calibre.ipynb` | **Le carnet final, et il se lit seul.** Onze parties qui reprennent tout depuis le réseau : la métrique, les deux équations de demande, la zone C et son bilan de masse, la zone A+B et le piège du recalage, la pompe et le réservoir, les treize groupes de rugosité, puis cinq variantes comparées sur l'année. Aucun renvoi à un autre carnet, aucune conclusion admise sans être remesurée sur la page. Se termine sur la fonction qui livre le modèle calibré. |
 
 Les carnets `bis` ne sont pas un résumé ni une suite : c'est **le même code et les mêmes
 résultats**, découpés plus finement. Pour découvrir le travail, commencez par eux ; les versions
 courtes se relisent plus vite une fois qu'on sait ce qu'on y cherche.
 
-Le carnet 6 est le seul à ne rien démontrer : il **applique**. Si vous cherchez la marche à suivre
-plutôt que le raisonnement qui y mène, commencez — et finissez — par lui.
+Le carnet 6 est **autosuffisant** : il refait tous les calculs dont il parle et ne renvoie à aucun
+autre fichier. Les cinq premiers montrent comment chaque conclusion a été trouvée, souvent en
+passant par des impasses ; le sixième montre l'état final du raisonnement et livre le modèle. Si
+vous n'en lisez qu'un, lisez celui-là.
 
 Deux documents accompagnent le code : [`GUIDE.md`](GUIDE.md) explique le travail dans l'ordre où
 il a été fait, code à l'appui, et se lit d'une traite ; [`CORRECTIONS.md`](CORRECTIONS.md) liste
