@@ -116,6 +116,12 @@ telle.
 * **les résultats négatifs** — section du réservoir sans effet, rugosités qui n'agissent que sur le
   biais, groupes arrêtés sur une borne. Ce sont eux qui font la valeur du carnet 2.
 
+**Les carnets `bis`.** `01bis` et `02bis` portent le même code et les mêmes sorties que `01` et
+`02`, découpés plus finement. Une correction faite dans l'un doit donc être reportée dans l'autre,
+et une correction de **code** demande de réexécuter les deux. C'est le prix du double découpage :
+si l'entretien devient pénible, mieux vaut abandonner une des deux versions que les laisser
+diverger.
+
 **Méthode.** Une correction purement rédactionnelle s'édite directement dans le champ `source` de
 la cellule markdown du `.ipynb`, sans rien réexécuter : une cellule markdown n'a pas de sortie. Dès
 qu'une cellule **de code** change — y compris un titre de figure — il faut réexécuter le carnet et

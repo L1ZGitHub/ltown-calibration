@@ -11,13 +11,19 @@ pour poser la question qui nous intéresse ici :
 > Un modèle hydraulique livré avec des valeurs de conception, jusqu'où peut-on le rapprocher
 > de la réalité, et quel paramètre paie vraiment ?
 
-Trois carnets y répondent.
+Trois carnets y répondent, et les deux premiers existent en deux découpages.
 
 | Carnet | Contenu |
 |---|---|
 | `notebooks/01_calibration_under_pressure.ipynb` | La méthode de référence, reproduite pas à pas : modèle de demande en produit d'effets, mélange de types de consommateurs, six groupes de rugosité ajustés par moindres carrés sous contraintes. |
+| `notebooks/01bis_calibration_pas_a_pas.ipynb` | Le même contenu, en deux fois plus de cellules : une idée par cellule, une figure à la fois, des commentaires courts. Mêmes sorties. |
 | `notebooks/02_ameliorations.ipynb` | Quatre leviers que cette méthode laisse de côté, tous lus dans les capteurs : l'état réel de la pompe, l'ancrage du niveau du réservoir, sa section réelle, et le niveau de demande donné par le bilan de masse. |
+| `notebooks/02bis_ameliorations_pas_a_pas.ipynb` | Le second carnet dans le même découpage fin. Mêmes sorties. |
 | `notebooks/03_generer_des_fuites.ipynb` | À quoi sert le modèle calibré : poser une fuite par émetteur, mesurer la baisse de pression aux 33 capteurs, et la comparer à l'erreur du modèle. |
+
+Les carnets `bis` ne sont pas un résumé ni une suite : c'est **le même code et les mêmes
+résultats**, découpés plus finement. Pour découvrir le travail, commencez par eux ; les versions
+courtes se relisent plus vite une fois qu'on sait ce qu'on y cherche.
 
 Deux documents accompagnent le code : [`GUIDE.md`](GUIDE.md) explique le travail dans l'ordre où
 il a été fait, code à l'appui, et se lit d'une traite ; [`CORRECTIONS.md`](CORRECTIONS.md) liste
