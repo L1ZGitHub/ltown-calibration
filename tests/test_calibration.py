@@ -17,6 +17,7 @@ from calibration import ameliorations as A
 from calibration import diagnostics as G
 from calibration import profils as P
 from calibration import reseau as R
+from calibration import generation as Gen
 from calibration import rugosite as U
 
 donnees = pytest.mark.skipif(
@@ -406,3 +407,89 @@ def test_le_modele_de_demande_retrouve_la_consommation_reelle_de_ab():
 
     assert abs(modele / (bilan - fuite_ab) - 1) < 0.01     # à 1 % de la consommation réelle
     assert modele / bilan - 1 < -0.05                      # et bien en dessous du bilan brut
+
+
+# ------------------------------------------------------------------ génération de scénarios
+def test_une_fuite_refuse_une_date_hors_grille():
+    """Les dates doivent tomber sur une frontière de tranche, sinon le recollement serait faux."""
+    Gen.Fuite(conduite="p232", debut=Gen.PAS_TRANCHE, fin=2 * Gen.PAS_TRANCHE)
+
+    with pytest.raises(ValueError, match="frontière de tranche"):
+        Gen.Fuite(conduite="p232", debut=Gen.PAS_TRANCHE + 1)
+    with pytest.raises(ValueError, match="avant début"):
+        Gen.Fuite(conduite="p232", debut=2 * Gen.PAS_TRANCHE, fin=Gen.PAS_TRANCHE)
+    with pytest.raises(ValueError, match="profil inconnu"):
+        Gen.Fuite(conduite="p232", debut=0, profil="lent")
+
+
+@donnees
+def test_le_scenario_est_exact_avant_la_fuite_et_delivre_le_debit_vise():
+    """Les deux propriétés dont dépend l'étiquetage.
+
+    Avant l'ouverture, le scénario doit être **bit pour bit** le témoin : c'est ce qui autorise à
+    ne simuler que la durée de la fuite. Et le débit soutiré doit être celui qu'on a demandé, sans
+    quoi l'étiquette ne décrirait pas ce qui a été simulé.
+    """
+    wn = R.charger_modele()
+    noeuds = wn.junction_name_list
+    n = 2 * Gen.PAS_TRANCHE
+    D, _ = P.demandes_nominales(wn, R.horodatage(2018, n + 1))
+
+    propre = Gen.fenetre_propre(D, noeuds, n, niveau0=3.5, verbeux=False)
+    f = Gen.Fuite(conduite="p232", debut=Gen.PAS_TRANCHE, debit_m3h=10.0)
+    pressions, debit = Gen.poser(D, noeuds, n, wn, f, propre, niveau0=3.5, verbeux=False)
+
+    assert np.array_equal(pressions[:f.debut], propre[:f.debut])
+    assert not np.array_equal(pressions[f.debut:], propre[f.debut:])
+    assert np.all(debit[:f.debut] == 0)
+
+    v = Gen.etiquette(wn, noeuds, f, debit, n)
+    assert v["noeud_perce"] in noeuds
+    assert v["pas_avec_fuite"] == n - f.debut
+    assert 0.90 * f.debit_m3h <= v["debit_reel_m3h"] <= 1.10 * f.debit_m3h
+
+
+@donnees
+def test_une_fuite_progressive_monte_par_paliers():
+    """Le profil progressif doit produire un débit croissant, pas un échelon."""
+    wn = R.charger_modele()
+    noeuds = wn.junction_name_list
+    n = 4 * Gen.PAS_TRANCHE
+    D, _ = P.demandes_nominales(wn, R.horodatage(2018, n + 1))
+
+    propre = Gen.fenetre_propre(D, noeuds, n, niveau0=3.5, verbeux=False)
+    f = Gen.Fuite(conduite="p232", debut=0, fin=n, debit_m3h=20.0,
+                  profil="progressif", paliers=4)
+    _, debit = Gen.poser(D, noeuds, n, wn, f, propre, niveau0=3.5, verbeux=False)
+
+    quarts = [debit[i * n // 4:(i + 1) * n // 4].mean() for i in range(4)]
+    assert quarts == sorted(quarts)
+    assert quarts[0] == pytest.approx(f.debit_m3h / 4, rel=0.15)
+    assert quarts[-1] == pytest.approx(f.debit_m3h, rel=0.15)
+
+
+@donnees
+def test_generer_ecrit_un_lot_relisible(tmp_path):
+    """Un lot doit se relire sans le code qui l'a produit : parquet, json et index."""
+    wn = R.charger_modele()
+    noeuds = wn.junction_name_list
+    n = 2 * Gen.PAS_TRANCHE
+    horo = R.horodatage(2018, n + 1)
+    D, _ = P.demandes_nominales(wn, horo)
+
+    index = Gen.generer(D, noeuds, wn, n,
+                        [Gen.Fuite(conduite="p232", debut=Gen.PAS_TRANCHE, debit_m3h=8.0)],
+                        horo, tmp_path, niveau0=3.5, journal=False, verbeux=False)
+
+    assert list(index["fuite"]) == [False, True]
+    assert (tmp_path / "index.csv").exists()
+    p = pd.read_parquet(tmp_path / "scenario_0001" / "pressions.parquet")
+    assert p.shape == (n, 33)
+    assert list(p.columns) == R.capteurs()["pressure"]
+    # les capteurs réels ne publient que deux décimales : le lot doit en faire autant
+    assert np.allclose(p.to_numpy(), np.round(p.to_numpy(), 2))
+
+    import json as _json
+    v = _json.loads((tmp_path / "scenario_0001" / "verite.json").read_text())
+    assert v["conduite"] == "p232" and v["debut"] == Gen.PAS_TRANCHE
+    assert not (tmp_path / "temoin" / "verite.json").exists()

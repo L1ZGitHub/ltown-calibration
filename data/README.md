@@ -32,3 +32,25 @@ export LTOWN_DIR=/chemin/vers/les/donnees
   (m³/s). Le module `calibration.reseau` fait la conversion à un seul endroit.
 * Les pressions sont arrondies à deux décimales. Le pas de temps est de 5 minutes partout, soit
   105 120 pas pour une année de 365 jours.
+
+## Les lots de scénarios produits par le carnet 6
+
+`data/generes/<nom du lot>/` — ignoré par git, à régénérer en relançant le carnet.
+
+```
+lot_janvier/
+├── index.csv                 une ligne par scénario : conduite, dates, débit visé et réel, volume
+├── temoin/
+│   └── pressions.parquet     la même fenêtre sans aucune fuite
+├── scenario_0001/
+│   ├── pressions.parquet     33 colonnes (les capteurs officiels), index horodaté au pas de 5 min
+│   └── verite.json           conduite, nœud percé, dates, débit réellement soutiré, volume perdu
+└── ...
+```
+
+Les pressions sont **arrondies au centimètre**, comme les mesures réelles de L-Town : un détecteur
+entraîné sur des flottants libres apprendrait un signal que les capteurs ne publient pas.
+
+Le débit porté par `verite.json` est celui qui a **réellement** été soutiré par l'émetteur, et non
+la consigne demandée : une fuite fait baisser la pression qui la nourrit, donc les deux diffèrent,
+d'autant plus que la fuite est grosse.

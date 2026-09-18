@@ -6,4 +6,5 @@ scipy>=1.10
 networkx>=3.0
 matplotlib>=3.7
 pyyaml>=6.0
+pyarrow>=14.0        # écriture des lots de scénarios en parquet (carnet 6)
 jupyter>=1.0

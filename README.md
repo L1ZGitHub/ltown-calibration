@@ -11,27 +11,30 @@ pour poser la question qui nous intéresse ici :
 > Un modèle hydraulique livré avec des valeurs de conception, jusqu'où peut-on le rapprocher
 > de la réalité, et quel paramètre paie vraiment ?
 
-Six carnets y répondent, et les deux premiers existent en deux découpages.
+Le dépôt s'ouvre sur **[`notebooks/00_le_modele_calibre.ipynb`](notebooks/00_le_modele_calibre.ipynb)**.
+C'est le carnet principal : il répond à la question de bout en bout, refait tous les calculs dont
+il parle et ne renvoie à aucun autre fichier. Si vous n'en lisez qu'un, lisez celui-là.
 
 | Carnet | Contenu |
 |---|---|
+| **`notebooks/00_le_modele_calibre.ipynb`** | **Le carnet principal, et il se lit seul.** Onze parties qui reprennent tout depuis le réseau : la métrique, les deux équations de demande, la zone C et son bilan de masse, la zone A+B et le piège du recalage, la pompe et le réservoir, les treize groupes de rugosité, puis cinq variantes comparées sur l'année. Aucun renvoi à un autre carnet, aucune conclusion admise sans être remesurée sur la page. Se termine sur la fonction qui livre le modèle calibré. |
+| **`notebooks/06_generer_des_scenarios.ipynb`** | **Le second livrable : à quoi sert le modèle calibré.** On s'en sert à l'envers pour fabriquer des scénarios de fuite dont l'étiquette est exacte — conduite, heure d'ouverture, heure de réparation, débit réellement soutiré, volume perdu. Explique l'émetteur, le recollement qui divise le coût d'un lot par trois, et l'axe de difficulté qui doit présider à sa composition. Produit un lot relisible sans lui. |
 | `notebooks/01_calibration_under_pressure.ipynb` | La méthode de référence, reproduite pas à pas : modèle de demande en produit d'effets, mélange de types de consommateurs, six groupes de rugosité ajustés par moindres carrés sous contraintes. |
 | `notebooks/01bis_calibration_pas_a_pas.ipynb` | Le même contenu, en deux fois plus de cellules : une idée par cellule, une figure à la fois, des commentaires courts. Mêmes sorties. |
 | `notebooks/02_ameliorations.ipynb` | Quatre leviers que cette méthode laisse de côté, tous lus dans les capteurs : l'état réel de la pompe, l'ancrage du niveau du réservoir, sa section réelle, et le niveau de demande donné par le bilan de masse. |
 | `notebooks/02bis_ameliorations_pas_a_pas.ipynb` | Le second carnet dans le même découpage fin. Mêmes sorties. |
-| `notebooks/03_generer_des_fuites.ipynb` | À quoi sert le modèle calibré : poser une fuite par émetteur, mesurer la baisse de pression aux 33 capteurs, et la comparer à l'erreur du modèle. |
+| `notebooks/03_generer_des_fuites.ipynb` | La première exploration de l'émetteur : poser une fuite, mesurer la baisse aux 33 capteurs, la comparer à l'erreur du modèle. Le carnet 6 reprend et généralise tout cela. |
 | `notebooks/04_bilan_par_zone.ipynb` | Sans simuler : la zone C a toute sa frontière instrumentée, donc son bilan de masse donne directement le débit de fuite. La zone A+B, non — et on mesure de combien elle en est loin, puis on s'en sert pour valider le modèle de demande du carnet 1. |
 | `notebooks/05_regroupement.ipynb` | Le résultat négatif du carnet 2 venait-il du paramètre ou du regroupement ? Comparaison des groupes par diamètre et par zone × coefficient × diamètre, sur trois fenêtres. |
-| `notebooks/06_le_modele_calibre.ipynb` | **Le carnet final, et il se lit seul.** Onze parties qui reprennent tout depuis le réseau : la métrique, les deux équations de demande, la zone C et son bilan de masse, la zone A+B et le piège du recalage, la pompe et le réservoir, les treize groupes de rugosité, puis cinq variantes comparées sur l'année. Aucun renvoi à un autre carnet, aucune conclusion admise sans être remesurée sur la page. Se termine sur la fonction qui livre le modèle calibré. |
 
-Les carnets `bis` ne sont pas un résumé ni une suite : c'est **le même code et les mêmes
-résultats**, découpés plus finement. Pour découvrir le travail, commencez par eux ; les versions
-courtes se relisent plus vite une fois qu'on sait ce qu'on y cherche.
+Les carnets **01 à 05 sont l'atelier** : ils montrent comment chaque conclusion a été trouvée,
+souvent en passant par des impasses, et plusieurs de leurs résultats ont été corrigés en cours de
+route. Les carnets `bis` ne sont ni un résumé ni une suite : c'est **le même code et les mêmes
+résultats** que 01 et 02, découpés plus finement — une idée par cellule. Pour comprendre le
+raisonnement, commencez par eux.
 
-Le carnet 6 est **autosuffisant** : il refait tous les calculs dont il parle et ne renvoie à aucun
-autre fichier. Les cinq premiers montrent comment chaque conclusion a été trouvée, souvent en
-passant par des impasses ; le sixième montre l'état final du raisonnement et livre le modèle. Si
-vous n'en lisez qu'un, lisez celui-là.
+Les carnets **00 et 06 sont les livrables** : l'un produit le modèle calibré, l'autre s'en sert
+pour fabriquer des données étiquetées. Tous deux se lisent sans les autres.
 
 Deux documents accompagnent le code : [`GUIDE.md`](GUIDE.md) explique le travail dans l'ordre où
 il a été fait, code à l'appui, et se lit d'une traite ; [`CORRECTIONS.md`](CORRECTIONS.md) liste
@@ -217,10 +220,13 @@ calibration/
 ├── profils.py        les deux équations du modèle de demande
 ├── rugosite.py       groupes de conduites, ajustement sous contraintes, identifiabilité
 ├── ameliorations.py  pompe mesurée, niveau ancré, section du réservoir, bilans de masse
-└── diagnostics.py    biais / dispersion / RMSE, par capteur et agrégés
+├── diagnostics.py    biais / dispersion / RMSE, par capteur et agrégés
+└── generation.py     scénarios de fuite étiquetés à partir du modèle calibré
 ```
 
-Le carnet 3 écrit ses scénarios dans `data/generes/`, ignoré par git.
+Les carnets 3 et 6 écrivent leurs scénarios dans `data/generes/`, ignoré par git. Le carnet 6
+produit un lot complet — un dossier par scénario, `pressions.parquet` aux 33 capteurs,
+`verite.json`, et un `index.csv` — dont le format est décrit dans [`data/README.md`](data/README.md).
 
 Les fonctions sont écrites pour être appelées depuis un carnet : elles prennent des tableaux et
 rendent des tableaux, ne dessinent rien d'elles-mêmes (sauf les deux aides de `diagnostics`) et

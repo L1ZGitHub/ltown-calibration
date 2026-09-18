@@ -1162,7 +1162,7 @@ comptent plus que cette coïncidence :
 
 Cette section est de la référence. Elle ne se lit utilement qu'une fois le reste compris.
 
-### Les cinq modules
+### Les six modules
 
 ```
 calibration/
@@ -1170,7 +1170,8 @@ calibration/
 ├── profils.py        les deux équations du modèle de demande (sections 4 et 5)
 ├── rugosite.py       groupes, critère d'ajustement, diagnostic d'identifiabilité (7 et 14)
 ├── ameliorations.py  pompe, ancrage, section du réservoir, bilan de masse (9 à 13)
-└── diagnostics.py    biais / dispersion / RMSE, par capteur et agrégés (section 1)
+├── diagnostics.py    biais / dispersion / RMSE, par capteur et agrégés (section 1)
+└── generation.py     scénarios de fuite étiquetés à partir du modèle calibré
 ```
 
 Elles prennent des tableaux et rendent des tableaux, ne dessinent rien d'elles-mêmes (sauf les
