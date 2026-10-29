@@ -1,0 +1,557 @@
+[
+ {
+  "identifiant": "v36_e00_sain",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 310,
+  "debut_pas": 89280,
+  "fin_pas_exclue": 89352,
+  "graine_variante": 9036,
+  "graine_episode": 1118675420,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v36_e03_sain",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 316,
+  "debut_pas": 91008,
+  "fin_pas_exclue": 91080,
+  "graine_variante": 9036,
+  "graine_episode": 102710809,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v36_e06_sain",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 321,
+  "debut_pas": 92448,
+  "fin_pas_exclue": 92520,
+  "graine_variante": 9036,
+  "graine_episode": 1792395563,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v36_e09_sain",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 330,
+  "debut_pas": 95040,
+  "fin_pas_exclue": 95112,
+  "graine_variante": 9036,
+  "graine_episode": 607997711,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v36_e12_sain",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 340,
+  "debut_pas": 97920,
+  "fin_pas_exclue": 97992,
+  "graine_variante": 9036,
+  "graine_episode": 1315979509,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v36_e15_sain",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 347,
+  "debut_pas": 99936,
+  "fin_pas_exclue": 100008,
+  "graine_variante": 9036,
+  "graine_episode": 1819954682,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v36_e18_sain",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 356,
+  "debut_pas": 102528,
+  "fin_pas_exclue": 102600,
+  "graine_variante": 9036,
+  "graine_episode": 93400636,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v37_e01_une",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 318,
+  "debut_pas": 91584,
+  "fin_pas_exclue": 91656,
+  "graine_variante": 9037,
+  "graine_episode": 1750032658,
+  "fuites_visees_m3h": {
+   "p97": 6.2
+  }
+ },
+ {
+  "identifiant": "v37_e04_une",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 329,
+  "debut_pas": 94752,
+  "fin_pas_exclue": 94824,
+  "graine_variante": 9037,
+  "graine_episode": 1305896330,
+  "fuites_visees_m3h": {
+   "p92": 18.0
+  }
+ },
+ {
+  "identifiant": "v37_e07_une",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 335,
+  "debut_pas": 96480,
+  "fin_pas_exclue": 96552,
+  "graine_variante": 9037,
+  "graine_episode": 192108453,
+  "fuites_visees_m3h": {
+   "p628": 3.7
+  }
+ },
+ {
+  "identifiant": "v37_e10_une",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 340,
+  "debut_pas": 97920,
+  "fin_pas_exclue": 97992,
+  "graine_variante": 9037,
+  "graine_episode": 1617913776,
+  "fuites_visees_m3h": {
+   "p372": 8.75
+  }
+ },
+ {
+  "identifiant": "v37_e13_une",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 349,
+  "debut_pas": 100512,
+  "fin_pas_exclue": 100584,
+  "graine_variante": 9037,
+  "graine_episode": 1682418532,
+  "fuites_visees_m3h": {
+   "p815": 17.22
+  }
+ },
+ {
+  "identifiant": "v36_e01_une",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 312,
+  "debut_pas": 89856,
+  "fin_pas_exclue": 89928,
+  "graine_variante": 9036,
+  "graine_episode": 793146144,
+  "fuites_visees_m3h": {
+   "p284": 14.21
+  }
+ },
+ {
+  "identifiant": "v36_e04_une",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 318,
+  "debut_pas": 91584,
+  "fin_pas_exclue": 91656,
+  "graine_variante": 9036,
+  "graine_episode": 1467216554,
+  "fuites_visees_m3h": {
+   "p111": 3.54
+  }
+ },
+ {
+  "identifiant": "v36_e07_une",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 322,
+  "debut_pas": 92736,
+  "fin_pas_exclue": 92808,
+  "graine_variante": 9036,
+  "graine_episode": 1777808752,
+  "fuites_visees_m3h": {
+   "p288": 10.23
+  }
+ },
+ {
+  "identifiant": "v36_e10_une",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 331,
+  "debut_pas": 95328,
+  "fin_pas_exclue": 95400,
+  "graine_variante": 9036,
+  "graine_episode": 162734477,
+  "fuites_visees_m3h": {
+   "p555": 4.27
+  }
+ },
+ {
+  "identifiant": "v36_e13_une",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 345,
+  "debut_pas": 99360,
+  "fin_pas_exclue": 99432,
+  "graine_variante": 9036,
+  "graine_episode": 1697805707,
+  "fuites_visees_m3h": {
+   "p591": 9.61
+  }
+ },
+ {
+  "identifiant": "v36_e02_plusieurs",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 313,
+  "debut_pas": 90144,
+  "fin_pas_exclue": 90216,
+  "graine_variante": 9036,
+  "graine_episode": 1830460442,
+  "fuites_visees_m3h": {
+   "p641": 18.23,
+   "p623": 18.24,
+   "p36": 2.03
+  }
+ },
+ {
+  "identifiant": "v36_e05_plusieurs",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 320,
+  "debut_pas": 92160,
+  "fin_pas_exclue": 92232,
+  "graine_variante": 9036,
+  "graine_episode": 523806112,
+  "fuites_visees_m3h": {
+   "p199": 3.65,
+   "p892": 10.94,
+   "p801": 5.6
+  }
+ },
+ {
+  "identifiant": "v36_e08_plusieurs",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 328,
+  "debut_pas": 94464,
+  "fin_pas_exclue": 94536,
+  "graine_variante": 9036,
+  "graine_episode": 1408225841,
+  "fuites_visees_m3h": {
+   "p18": 16.33,
+   "p239": 5.96,
+   "p595": 11.16
+  }
+ },
+ {
+  "identifiant": "v36_e11_plusieurs",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 336,
+  "debut_pas": 96768,
+  "fin_pas_exclue": 96840,
+  "graine_variante": 9036,
+  "graine_episode": 1650524026,
+  "fuites_visees_m3h": {
+   "p188": 5.62,
+   "p109": 15.91,
+   "p441": 11.99
+  }
+ },
+ {
+  "identifiant": "v36_e14_plusieurs",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 346,
+  "debut_pas": 99648,
+  "fin_pas_exclue": 99720,
+  "graine_variante": 9036,
+  "graine_episode": 287614836,
+  "fuites_visees_m3h": {
+   "p773": 17.63,
+   "p175": 3.22,
+   "p851": 8.14
+  }
+ },
+ {
+  "identifiant": "v36_e17_plusieurs",
+  "variante": "v36",
+  "partition": "test",
+  "jour": 355,
+  "debut_pas": 102240,
+  "fin_pas_exclue": 102312,
+  "graine_variante": 9036,
+  "graine_episode": 458476883,
+  "fuites_visees_m3h": {
+   "p431": 4.11,
+   "p147": 15.73,
+   "p460": 18.33
+  }
+ },
+ {
+  "identifiant": "v37_e00_sain",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 317,
+  "debut_pas": 91296,
+  "fin_pas_exclue": 91368,
+  "graine_variante": 9037,
+  "graine_episode": 1179378603,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v37_e03_sain",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 325,
+  "debut_pas": 93600,
+  "fin_pas_exclue": 93672,
+  "graine_variante": 9037,
+  "graine_episode": 1521006175,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v37_e06_sain",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 334,
+  "debut_pas": 96192,
+  "fin_pas_exclue": 96264,
+  "graine_variante": 9037,
+  "graine_episode": 1870846063,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v37_e09_sain",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 337,
+  "debut_pas": 97056,
+  "fin_pas_exclue": 97128,
+  "graine_variante": 9037,
+  "graine_episode": 563693180,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v37_e12_sain",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 348,
+  "debut_pas": 100224,
+  "fin_pas_exclue": 100296,
+  "graine_variante": 9037,
+  "graine_episode": 1913618790,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v37_e15_sain",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 354,
+  "debut_pas": 101952,
+  "fin_pas_exclue": 102024,
+  "graine_variante": 9037,
+  "graine_episode": 1685547309,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v37_e18_sain",
+  "variante": "v37",
+  "partition": "test",
+  "jour": 358,
+  "debut_pas": 103104,
+  "fin_pas_exclue": 103176,
+  "graine_variante": 9037,
+  "graine_episode": 1114246840,
+  "fuites_visees_m3h": {}
+ },
+ {
+  "identifiant": "v38_e01_une",
+  "variante": "v38",
+  "partition": "test",
+  "jour": 315,
+  "debut_pas": 90720,
+  "fin_pas_exclue": 90792,
+  "graine_variante": 9038,
+  "graine_episode": 1410258585,
+  "fuites_visees_m3h": {
+   "p798": 10.78
+  }
+ },
+ {
+  "identifiant": "v38_e04_une",
+  "variante": "v38",
+  "partition": "test",
+  "jour": 324,
+  "debut_pas": 93312,
+  "fin_pas_exclue": 93384,
+  "graine_variante": 9038,
+  "graine_episode": 975972868,
+  "fuites_visees_m3h": {
+   "p401": 7.97
+  }
+ },
+ {
+  "identifiant": "v38_e07_une",
+  "variante": "v38",
+  "partition": "test",
+  "jour": 330,
+  "debut_pas": 95040,
+  "fin_pas_exclue": 95112,
+  "graine_variante": 9038,
+  "graine_episode": 948497016,
+  "fuites_visees_m3h": {
+   "p553": 18.1
+  }
+ },
+ {
+  "identifiant": "v38_e10_une",
+  "variante": "v38",
+  "partition": "test",
+  "jour": 335,
+  "debut_pas": 96480,
+  "fin_pas_exclue": 96552,
+  "graine_variante": 9038,
+  "graine_episode": 998547069,
+  "fuites_visees_m3h": {
+   "p513": 11.37
+  }
+ },
+ {
+  "identifiant": "v38_e13_une",
+  "variante": "v38",
+  "partition": "test",
+  "jour": 343,
+  "debut_pas": 98784,
+  "fin_pas_exclue": 98856,
+  "graine_variante": 9038,
+  "graine_episode": 126733665,
+  "fuites_visees_m3h": {
+   "p797": 13.95
+  }
+ },
+ {
+  "identifiant": "v38_e16_une",
+  "variante": "v38",
+  "partition": "test",
+  "jour": 354,
+  "debut_pas": 101952,
+  "fin_pas_exclue": 102024,
+  "graine_variante": 9038,
+  "graine_episode": 1552765882,
+  "fuites_visees_m3h": {
+   "p282": 15.13
+  }
+ },
+ {
+  "identifiant": "v38_e19_une",
+  "variante": "v38",
+  "partition": "test",
+  "jour": 360,
+  "debut_pas": 103680,
+  "fin_pas_exclue": 103752,
+  "graine_variante": 9038,
+  "graine_episode": 674581086,
+  "fuites_visees_m3h": {
+   "p539": 16.44
+  }
+ },
+ {
+  "identifiant": "v39_e02_plusieurs",
+  "variante": "v39",
+  "partition": "test",
+  "jour": 321,
+  "debut_pas": 92448,
+  "fin_pas_exclue": 92520,
+  "graine_variante": 9039,
+  "graine_episode": 1083491816,
+  "fuites_visees_m3h": {
+   "p665": 10.95,
+   "p814": 9.09,
+   "p115": 6.57
+  }
+ },
+ {
+  "identifiant": "v39_e05_plusieurs",
+  "variante": "v39",
+  "partition": "test",
+  "jour": 332,
+  "debut_pas": 95616,
+  "fin_pas_exclue": 95688,
+  "graine_variante": 9039,
+  "graine_episode": 934712731,
+  "fuites_visees_m3h": {
+   "p536": 18.49,
+   "p235": 19.1,
+   "p41": 5.1
+  }
+ },
+ {
+  "identifiant": "v39_e08_plusieurs",
+  "variante": "v39",
+  "partition": "test",
+  "jour": 339,
+  "debut_pas": 97632,
+  "fin_pas_exclue": 97704,
+  "graine_variante": 9039,
+  "graine_episode": 170557391,
+  "fuites_visees_m3h": {
+   "p289": 11.51,
+   "p874": 13.89,
+   "p415": 17.24
+  }
+ },
+ {
+  "identifiant": "v39_e11_plusieurs",
+  "variante": "v39",
+  "partition": "test",
+  "jour": 347,
+  "debut_pas": 99936,
+  "fin_pas_exclue": 100008,
+  "graine_variante": 9039,
+  "graine_episode": 1034833292,
+  "fuites_visees_m3h": {
+   "p833": 19.31,
+   "p103": 9.01,
+   "p838": 19.82
+  }
+ },
+ {
+  "identifiant": "v39_e14_plusieurs",
+  "variante": "v39",
+  "partition": "test",
+  "jour": 353,
+  "debut_pas": 101664,
+  "fin_pas_exclue": 101736,
+  "graine_variante": 9039,
+  "graine_episode": 1858364589,
+  "fuites_visees_m3h": {
+   "p812": 9.8,
+   "p394": 6.38,
+   "p82": 18.6
+  }
+ },
+ {
+  "identifiant": "v39_e17_plusieurs",
+  "variante": "v39",
+  "partition": "test",
+  "jour": 357,
+  "debut_pas": 102816,
+  "fin_pas_exclue": 102888,
+  "graine_variante": 9039,
+  "graine_episode": 18783939,
+  "fuites_visees_m3h": {
+   "p2": 3.63,
+   "p269": 12.93,
+   "p608": 18.63
+  }
+ }
+]

@@ -1,0 +1,31 @@
+{
+ "horizon_h": 1,
+ "pas_min": 5,
+ "conduites": 905,
+ "noeuds_originaux": 785,
+ "noeuds_decoupes": 1690,
+ "pression_saine_max_abs_m": 7.62939453125e-06,
+ "debit_sain_max_abs_m3h": 0.00015273668395821005,
+ "continuite_saine_max_abs_m3h": 0.0001477842452004552,
+ "fuite": {
+  "nom": "p235",
+  "debut": "R2",
+  "milieu": "m09_p235",
+  "fin": "n336",
+  "segment_1": "p235",
+  "segment_2": "s09_p235"
+ },
+ "fuite_min_m3h": 9.998894691467285,
+ "fuite_max_m3h": 9.999871253967285,
+ "bilan_fuite_max_abs_m3h": 1.049041748046875e-05,
+ "tolerances": {
+  "pression_m": 0.01,
+  "debit_m3h": 0.1,
+  "bilan_m3h": 0.01
+ },
+ "solveur": {
+  "accuracy": 1e-06,
+  "trials": 200,
+  "unbalanced": "STOP"
+ }
+}

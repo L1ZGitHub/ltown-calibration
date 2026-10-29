@@ -1,0 +1,4 @@
+# En plus de ../02_calibration_modele/requirements.txt. Testé avec torch 2.13, PyG 2.8, scikit-learn 1.9.
+torch>=2.0
+torch_geometric>=2.5
+scikit-learn>=1.3

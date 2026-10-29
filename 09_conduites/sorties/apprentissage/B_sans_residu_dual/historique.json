@@ -1,0 +1,182 @@
+[
+ {
+  "etape": 1,
+  "train": {
+   "fuite_brute": 1.3792762682594435,
+   "fuite_equilibree": 0.9963136367023192,
+   "totale": 0.9963136367023192
+  },
+  "validation": {
+   "fuite_brute": 1.5597772498925526,
+   "fuite_equilibree": 1.1266976674397786,
+   "totale": 1.1266976674397786
+  },
+  "secondes": 483.53055596351624,
+  "heure": "2026-10-27T10:22:23+00:00"
+ },
+ {
+  "etape": 2,
+  "train": {
+   "fuite_brute": 1.3144090098036816,
+   "fuite_equilibree": 0.9494570821700011,
+   "totale": 0.9494570821700011
+  },
+  "validation": {
+   "fuite_brute": 1.6504928628603617,
+   "fuite_equilibree": 1.1922256489594778,
+   "totale": 1.1922256489594778
+  },
+  "secondes": 483.3584814071655,
+  "heure": "2026-10-27T10:30:27+00:00"
+ },
+ {
+  "etape": 3,
+  "train": {
+   "fuite_brute": 1.243609743912343,
+   "fuite_equilibree": 0.8983155698566646,
+   "totale": 0.8983155698566646
+  },
+  "validation": {
+   "fuite_brute": 1.6357753505309423,
+   "fuite_equilibree": 1.1815945307413738,
+   "totale": 1.1815945307413738
+  },
+  "secondes": 483.2415101528168,
+  "heure": "2026-10-27T10:38:30+00:00"
+ },
+ {
+  "etape": 4,
+  "train": {
+   "fuite_brute": 0.9330516113432806,
+   "fuite_equilibree": 0.6739853828238513,
+   "totale": 0.6739853828238513
+  },
+  "validation": {
+   "fuite_brute": 1.743058672050635,
+   "fuite_equilibree": 1.2590901079277197,
+   "totale": 1.2590901079277197
+  },
+  "secondes": 483.32120394706726,
+  "heure": "2026-10-27T10:46:33+00:00"
+ },
+ {
+  "etape": 5,
+  "train": {
+   "fuite_brute": 0.76203241585628,
+   "fuite_equilibree": 0.5504504829594815,
+   "totale": 0.5504504829594815
+  },
+  "validation": {
+   "fuite_brute": 2.145877172549566,
+   "fuite_equilibree": 1.550064143165946,
+   "totale": 1.550064143165946
+  },
+  "secondes": 483.2685875892639,
+  "heure": "2026-10-27T10:54:37+00:00"
+ },
+ {
+  "etape": 6,
+  "train": {
+   "fuite_brute": 0.6517738763972916,
+   "fuite_equilibree": 0.4708057523931603,
+   "totale": 0.4708057523931603
+  },
+  "validation": {
+   "fuite_brute": 2.150472855567932,
+   "fuite_equilibree": 1.5533838291962943,
+   "totale": 1.5533838291962943
+  },
+  "secondes": 483.2787892818451,
+  "heure": "2026-10-27T11:02:40+00:00"
+ },
+ {
+  "etape": 7,
+  "train": {
+   "fuite_brute": 0.5525707915878376,
+   "fuite_equilibree": 0.3991468776571187,
+   "totale": 0.3991468776571187
+  },
+  "validation": {
+   "fuite_brute": 2.412468115737041,
+   "fuite_equilibree": 1.7426348527272542,
+   "totale": 1.7426348527272542
+  },
+  "secondes": 483.3631670475006,
+  "heure": "2026-10-27T11:10:43+00:00"
+ },
+ {
+  "etape": 8,
+  "train": {
+   "fuite_brute": 0.47352197996617573,
+   "fuite_equilibree": 0.3420463452065313,
+   "totale": 0.3420463452065313
+  },
+  "validation": {
+   "fuite_brute": 3.7842380105207365,
+   "fuite_equilibree": 2.7335262835646668,
+   "totale": 2.7335262835646668
+  },
+  "secondes": 483.33351016044617,
+  "heure": "2026-10-27T11:18:47+00:00"
+ },
+ {
+  "etape": 9,
+  "train": {
+   "fuite_brute": 0.41362868572862166,
+   "fuite_equilibree": 0.2987827092560159,
+   "totale": 0.2987827092560159
+  },
+  "validation": {
+   "fuite_brute": 4.822433870534102,
+   "fuite_equilibree": 3.4834621265530585,
+   "totale": 3.4834621265530585
+  },
+  "secondes": 483.11065316200256,
+  "heure": "2026-10-27T11:26:50+00:00"
+ },
+ {
+  "etape": 10,
+  "train": {
+   "fuite_brute": 0.3679866247835594,
+   "fuite_equilibree": 0.2658133845008608,
+   "totale": 0.2658133845008608
+  },
+  "validation": {
+   "fuite_brute": 4.4482360868404305,
+   "fuite_equilibree": 3.2131621102492014,
+   "totale": 3.2131621102492014
+  },
+  "secondes": 483.3209960460663,
+  "heure": "2026-10-27T11:34:53+00:00"
+ },
+ {
+  "etape": 11,
+  "train": {
+   "fuite_brute": 0.3471623351545753,
+   "fuite_equilibree": 0.2507710576913244,
+   "totale": 0.2507710576913244
+  },
+  "validation": {
+   "fuite_brute": 4.7652939836184185,
+   "fuite_equilibree": 3.4421873948226374,
+   "totale": 3.4421873948226374
+  },
+  "secondes": 483.4714720249176,
+  "heure": "2026-10-27T11:42:57+00:00"
+ },
+ {
+  "etape": 12,
+  "train": {
+   "fuite_brute": 0.3155405467787985,
+   "fuite_equilibree": 0.22792920944812667,
+   "totale": 0.22792920944812667
+  },
+  "validation": {
+   "fuite_brute": 5.946294181173046,
+   "fuite_equilibree": 4.2952772092695035,
+   "totale": 4.2952772092695035
+  },
+  "secondes": 126.18927192687988,
+  "heure": "2026-10-27T11:45:03+00:00"
+ }
+]

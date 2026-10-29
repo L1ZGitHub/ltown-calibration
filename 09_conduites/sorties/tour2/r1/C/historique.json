@@ -1,0 +1,777 @@
+[
+ {
+  "etape": 1,
+  "train": {
+   "q_brute": 0.07359408988144066,
+   "q_equilibree": 0.08617961812214774,
+   "fuite_brute": 1.052140151526107,
+   "fuite_equilibree": 0.7600084230548045,
+   "totale": 0.42309402022205417
+  },
+  "validation": {
+   "q_brute": 0.039071928213040036,
+   "q_equilibree": 0.04575372658049067,
+   "fuite_brute": 0.8117402193446954,
+   "fuite_equilibree": 0.5863566828270753,
+   "totale": 0.31605520471930504
+  },
+  "classement_validation": {
+   "1": 0.438034188034188,
+   "5": 0.6794871794871795,
+   "10": 0.7403846153846153
+  },
+  "bilan_validation": {
+   "pente": 0.05442194644162744,
+   "bruit_p99_m3h": 2.3418432545661947,
+   "fuites_au_dessus_du_bruit": 0.06666666666666667,
+   "bilan_median_fuites_m3h": -0.03126884810626507,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 249.4920642375946,
+  "heure": "2026-10-28T13:21:16+00:00"
+ },
+ {
+  "etape": 2,
+  "train": {
+   "q_brute": 0.02599310951005102,
+   "q_equilibree": 0.030438262897740275,
+   "fuite_brute": 0.5570924442528014,
+   "fuite_equilibree": 0.40241307152815514,
+   "totale": 0.21642566733647392
+  },
+  "validation": {
+   "q_brute": 0.032198008708655836,
+   "q_equilibree": 0.03770427877704303,
+   "fuite_brute": 0.615538614615798,
+   "fuite_equilibree": 0.4446313876658678,
+   "totale": 0.24116783452530702
+  },
+  "classement_validation": {
+   "1": 0.4433760683760683,
+   "5": 0.6474358974358975,
+   "10": 0.7222222222222222
+  },
+  "bilan_validation": {
+   "pente": 0.03136964613622534,
+   "bruit_p99_m3h": 3.7178586769104003,
+   "fuites_au_dessus_du_bruit": 0.035,
+   "bilan_median_fuites_m3h": 0.008496539201587439,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.8053641319275,
+  "heure": "2026-10-28T13:25:25+00:00"
+ },
+ {
+  "etape": 3,
+  "train": {
+   "q_brute": 0.02189965174579016,
+   "q_equilibree": 0.025644771583782106,
+   "fuite_brute": 0.43950073501759473,
+   "fuite_equilibree": 0.3174712606868544,
+   "totale": 0.17155801632500195
+  },
+  "validation": {
+   "q_brute": 0.026228918073077995,
+   "q_equilibree": 0.030714398063719273,
+   "fuite_brute": 0.8580273628855745,
+   "fuite_equilibree": 0.6197919801498453,
+   "totale": 0.32525318941722314
+  },
+  "classement_validation": {
+   "1": 0.46474358974358976,
+   "5": 0.6869658119658119,
+   "10": 0.7574786324786325
+  },
+  "bilan_validation": {
+   "pente": 0.02397713524112359,
+   "bruit_p99_m3h": 2.3273583698272713,
+   "fuites_au_dessus_du_bruit": 0.07,
+   "bilan_median_fuites_m3h": -0.0338816624134779,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.3884403705597,
+  "heure": "2026-10-28T13:29:34+00:00"
+ },
+ {
+  "etape": 4,
+  "train": {
+   "q_brute": 0.020787095064281065,
+   "q_equilibree": 0.024341953567263343,
+   "fuite_brute": 0.3951124662816212,
+   "fuite_equilibree": 0.28540760702591705,
+   "totale": 0.1548747804412459
+  },
+  "validation": {
+   "q_brute": 0.024030650189767282,
+   "q_equilibree": 0.02814019803578655,
+   "fuite_brute": 0.8125986902043223,
+   "fuite_equilibree": 0.5869767914836606,
+   "totale": 0.30755849548925956
+  },
+  "classement_validation": {
+   "1": 0.4732905982905983,
+   "5": 0.686965811965812,
+   "10": 0.7542735042735043
+  },
+  "bilan_validation": {
+   "pente": 0.01919222850014903,
+   "bruit_p99_m3h": 2.369443035125735,
+   "fuites_au_dessus_du_bruit": 0.04,
+   "bilan_median_fuites_m3h": -0.015421295538544655,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.15410900115967,
+  "heure": "2026-10-28T13:33:42+00:00"
+ },
+ {
+  "etape": 5,
+  "train": {
+   "q_brute": 0.019438512434770093,
+   "q_equilibree": 0.022762746072291392,
+   "fuite_brute": 0.35240439570673054,
+   "fuite_equilibree": 0.2545576351962945,
+   "totale": 0.13866019047744715
+  },
+  "validation": {
+   "q_brute": 0.026075247613092264,
+   "q_equilibree": 0.030534447512278955,
+   "fuite_brute": 0.7842928274224202,
+   "fuite_equilibree": 0.566530188297232,
+   "totale": 0.29853231788923346
+  },
+  "classement_validation": {
+   "1": 0.41132478632478625,
+   "5": 0.7029914529914529,
+   "10": 0.7991452991452991
+  },
+  "bilan_validation": {
+   "pente": 0.028228572978085932,
+   "bruit_p99_m3h": 1.895126247406006,
+   "fuites_au_dessus_du_bruit": 0.06,
+   "bilan_median_fuites_m3h": 0.061566805467009544,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.03119659423828,
+  "heure": "2026-10-28T13:37:50+00:00"
+ },
+ {
+  "etape": 6,
+  "train": {
+   "q_brute": 0.019647057379480536,
+   "q_equilibree": 0.023006954878880714,
+   "fuite_brute": 0.33009103658311656,
+   "fuite_equilibree": 0.23843968670041565,
+   "totale": 0.13072332096193473
+  },
+  "validation": {
+   "q_brute": 0.027209052133063474,
+   "q_equilibree": 0.031862147090335684,
+   "fuite_brute": 0.8770987582703431,
+   "fuite_equilibree": 0.6335681091994048,
+   "totale": 0.33271512798964975
+  },
+  "classement_validation": {
+   "1": 0.3002136752136752,
+   "5": 0.6891025641025641,
+   "10": 0.8034188034188035
+  },
+  "bilan_validation": {
+   "pente": 0.041022020075816706,
+   "bruit_p99_m3h": 2.6156106281280525,
+   "fuites_au_dessus_du_bruit": 0.05333333333333334,
+   "bilan_median_fuites_m3h": 0.0659446194767952,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.04497122764587,
+  "heure": "2026-10-28T13:41:58+00:00"
+ },
+ {
+  "etape": 7,
+  "train": {
+   "q_brute": 0.01939684257600424,
+   "q_equilibree": 0.022713950150898197,
+   "fuite_brute": 0.31256199902472903,
+   "fuite_equilibree": 0.22577766979187988,
+   "totale": 0.12424580984298679
+  },
+  "validation": {
+   "q_brute": 0.024951424325505893,
+   "q_equilibree": 0.02921843621879816,
+   "fuite_brute": 0.9780151866997282,
+   "fuite_equilibree": 0.7064646041020751,
+   "totale": 0.36784152037774526
+  },
+  "classement_validation": {
+   "1": 0.5032051282051282,
+   "5": 0.7136752136752137,
+   "10": 0.8034188034188033
+  },
+  "bilan_validation": {
+   "pente": 0.03758702051025602,
+   "bruit_p99_m3h": 2.494596624374392,
+   "fuites_au_dessus_du_bruit": 0.03666666666666667,
+   "bilan_median_fuites_m3h": 0.055582646280527115,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 247.7485957145691,
+  "heure": "2026-10-28T13:46:06+00:00"
+ },
+ {
+  "etape": 8,
+  "train": {
+   "q_brute": 0.018414286262701942,
+   "q_equilibree": 0.021563364152209816,
+   "fuite_brute": 0.2938983476026728,
+   "fuite_equilibree": 0.21229606986461927,
+   "totale": 0.11692971704335944
+  },
+  "validation": {
+   "q_brute": 0.02124014652023713,
+   "q_equilibree": 0.024872482754290104,
+   "fuite_brute": 1.155494688761731,
+   "fuite_equilibree": 0.8346660767371455,
+   "totale": 0.4297692860476673
+  },
+  "classement_validation": {
+   "1": 0.46581196581196577,
+   "5": 0.719017094017094,
+   "10": 0.8087606837606837
+  },
+  "bilan_validation": {
+   "pente": 0.023041545245029417,
+   "bruit_p99_m3h": 1.9171883618831642,
+   "fuites_au_dessus_du_bruit": 0.05,
+   "bilan_median_fuites_m3h": -0.08394518867135048,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.20513319969177,
+  "heure": "2026-10-28T13:50:14+00:00"
+ },
+ {
+  "etape": 9,
+  "train": {
+   "q_brute": 0.01834297106385127,
+   "q_equilibree": 0.021479853155842315,
+   "fuite_brute": 0.2735303702908869,
+   "fuite_equilibree": 0.19758335894939164,
+   "totale": 0.1095316061785812
+  },
+  "validation": {
+   "q_brute": 0.020566116273403167,
+   "q_equilibree": 0.02408318449743092,
+   "fuite_brute": 1.3549979366982976,
+   "fuite_equilibree": 0.9787763104153177,
+   "totale": 0.5014297464862466
+  },
+  "classement_validation": {
+   "1": 0.41559829059829057,
+   "5": 0.7553418803418803,
+   "10": 0.8301282051282052
+  },
+  "bilan_validation": {
+   "pente": 0.02324338601862365,
+   "bruit_p99_m3h": 1.987004526853562,
+   "fuites_au_dessus_du_bruit": 0.04833333333333333,
+   "bilan_median_fuites_m3h": 0.021001357585191727,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 247.967755317688,
+  "heure": "2026-10-28T13:54:22+00:00"
+ },
+ {
+  "etape": 10,
+  "train": {
+   "q_brute": 0.017943920217369916,
+   "q_equilibree": 0.02101255952580515,
+   "fuite_brute": 0.25989676854633326,
+   "fuite_equilibree": 0.18773519204861205,
+   "totale": 0.10437387581036978
+  },
+  "validation": {
+   "q_brute": 0.019632183853536843,
+   "q_equilibree": 0.02298953759794434,
+   "fuite_brute": 1.567323706112802,
+   "fuite_equilibree": 1.132148817460984,
+   "totale": 0.5775691837382814
+  },
+  "classement_validation": {
+   "1": 0.4284188034188034,
+   "5": 0.7126068376068376,
+   "10": 0.7735042735042734
+  },
+  "bilan_validation": {
+   "pente": 0.037453353798859036,
+   "bruit_p99_m3h": 2.071813504695894,
+   "fuites_au_dessus_du_bruit": 0.05,
+   "bilan_median_fuites_m3h": 0.04856196418404579,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 247.97650527954102,
+  "heure": "2026-10-28T13:58:30+00:00"
+ },
+ {
+  "etape": 11,
+  "train": {
+   "q_brute": 0.017650100718924082,
+   "q_equilibree": 0.020668493150587386,
+   "fuite_brute": 0.25017843591471167,
+   "fuite_equilibree": 0.1807152002348925,
+   "totale": 0.10069184662702815
+  },
+  "validation": {
+   "q_brute": 0.02229603615899881,
+   "q_equilibree": 0.02610894291040798,
+   "fuite_brute": 1.4763443078380079,
+   "fuite_equilibree": 1.0664302682193616,
+   "totale": 0.5462696045171469
+  },
+  "classement_validation": {
+   "1": 0.4209401709401709,
+   "5": 0.7158119658119657,
+   "10": 0.8173076923076922
+  },
+  "bilan_validation": {
+   "pente": 0.02756007300634994,
+   "bruit_p99_m3h": 2.2961072087287917,
+   "fuites_au_dessus_du_bruit": 0.03666666666666667,
+   "bilan_median_fuites_m3h": 0.08106635883450508,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.1819727420807,
+  "heure": "2026-10-28T14:02:38+00:00"
+ },
+ {
+  "etape": 12,
+  "train": {
+   "q_brute": 0.01733228286974885,
+   "q_equilibree": 0.020296324360856093,
+   "fuite_brute": 0.24542193263379747,
+   "fuite_equilibree": 0.17727936295474447,
+   "totale": 0.0987878437884126
+  },
+  "validation": {
+   "q_brute": 0.02273136582225561,
+   "q_equilibree": 0.026618719473481177,
+   "fuite_brute": 1.3989092961885035,
+   "fuite_equilibree": 1.0104954598471523,
+   "totale": 0.5185570900328458
+  },
+  "classement_validation": {
+   "1": 0.40491452991452986,
+   "5": 0.7040598290598291,
+   "10": 0.7905982905982906
+  },
+  "bilan_validation": {
+   "pente": 0.04282259564530199,
+   "bruit_p99_m3h": 2.346718266010285,
+   "fuites_au_dessus_du_bruit": 0.03666666666666667,
+   "bilan_median_fuites_m3h": 0.10359629988670349,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.01079845428467,
+  "heure": "2026-10-28T14:06:47+00:00"
+ },
+ {
+  "etape": 13,
+  "train": {
+   "q_brute": 0.017075045739271343,
+   "q_equilibree": 0.01999509640245695,
+   "fuite_brute": 0.23414944330366647,
+   "fuite_equilibree": 0.16913673435483867,
+   "totale": 0.09456591532023734
+  },
+  "validation": {
+   "q_brute": 0.021446553524583578,
+   "q_equilibree": 0.02511418752061824,
+   "fuite_brute": 1.69263716340065,
+   "fuite_equilibree": 1.2226683842639128,
+   "totale": 0.6238912887250384
+  },
+  "classement_validation": {
+   "1": 0.3675213675213675,
+   "5": 0.7061965811965811,
+   "10": 0.7959401709401709
+  },
+  "bilan_validation": {
+   "pente": 0.03002165157979877,
+   "bruit_p99_m3h": 1.9146675622463227,
+   "fuites_au_dessus_du_bruit": 0.065,
+   "bilan_median_fuites_m3h": 0.12226482480764389,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 247.92383241653442,
+  "heure": "2026-10-28T14:10:55+00:00"
+ },
+ {
+  "etape": 14,
+  "train": {
+   "q_brute": 0.01583281943007656,
+   "q_equilibree": 0.018540433557785077,
+   "fuite_brute": 0.2089642955492372,
+   "fuite_equilibree": 0.15094436293062957,
+   "totale": 0.08474239833652973
+  },
+  "validation": {
+   "q_brute": 0.020585694427912433,
+   "q_equilibree": 0.02410611102047066,
+   "fuite_brute": 1.843239431331555,
+   "fuite_equilibree": 1.3314552164015672,
+   "totale": 0.6777806615146498
+  },
+  "classement_validation": {
+   "1": 0.4166666666666667,
+   "5": 0.7692307692307693,
+   "10": 0.8418803418803418
+  },
+  "bilan_validation": {
+   "pente": 0.059850824064318235,
+   "bruit_p99_m3h": 2.1983093953132706,
+   "fuites_au_dessus_du_bruit": 0.085,
+   "bilan_median_fuites_m3h": 0.13389607518911362,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.211852312088,
+  "heure": "2026-10-28T14:15:03+00:00"
+ },
+ {
+  "etape": 15,
+  "train": {
+   "q_brute": 0.01645608162669384,
+   "q_equilibree": 0.01927028155359237,
+   "fuite_brute": 0.20218855401744013,
+   "fuite_equilibree": 0.14604993807880776,
+   "totale": 0.0826601099125717
+  },
+  "validation": {
+   "q_brute": 0.019210582428301374,
+   "q_equilibree": 0.022495837152625122,
+   "fuite_brute": 2.170158668762694,
+   "fuite_equilibree": 1.5676037661731244,
+   "totale": 0.7950497928696374
+  },
+  "classement_validation": {
+   "1": 0.4775641025641026,
+   "5": 0.7318376068376068,
+   "10": 0.8269230769230769
+  },
+  "bilan_validation": {
+   "pente": 0.02683285979760218,
+   "bruit_p99_m3h": 1.809479260444642,
+   "fuites_au_dessus_du_bruit": 0.07,
+   "bilan_median_fuites_m3h": 0.07968418300151825,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.1674554347992,
+  "heure": "2026-10-28T14:19:11+00:00"
+ },
+ {
+  "etape": 16,
+  "train": {
+   "q_brute": 0.0164977172575891,
+   "q_equilibree": 0.019319037382045517,
+   "fuite_brute": 0.21457000560086706,
+   "fuite_equilibree": 0.15499362048247586,
+   "totale": 0.08715632890877516
+  },
+  "validation": {
+   "q_brute": 0.01774843397239844,
+   "q_equilibree": 0.020783642337967954,
+   "fuite_brute": 1.659287155730029,
+   "fuite_equilibree": 1.1985781600388388,
+   "totale": 0.6096809032994012
+  },
+  "classement_validation": {
+   "1": 0.40598290598290593,
+   "5": 0.7532051282051282,
+   "10": 0.8258547008547007
+  },
+  "bilan_validation": {
+   "pente": 0.0042237955503693836,
+   "bruit_p99_m3h": 1.6616104984283475,
+   "fuites_au_dessus_du_bruit": 0.05333333333333334,
+   "bilan_median_fuites_m3h": 0.03462775982916355,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.09560418128967,
+  "heure": "2026-10-28T14:23:19+00:00"
+ },
+ {
+  "etape": 17,
+  "train": {
+   "q_brute": 0.015827094149558386,
+   "q_equilibree": 0.01853372921797249,
+   "fuite_brute": 0.1838799001785313,
+   "fuite_equilibree": 0.13282476950969016,
+   "totale": 0.07567924931191089
+  },
+  "validation": {
+   "q_brute": 0.02020444303440551,
+   "q_equilibree": 0.02365966074479123,
+   "fuite_brute": 1.6730604532485207,
+   "fuite_equilibree": 1.2085272429821392,
+   "totale": 0.6160934491859128
+  },
+  "classement_validation": {
+   "1": 0.3899572649572649,
+   "5": 0.7435897435897436,
+   "10": 0.8322649572649572
+  },
+  "bilan_validation": {
+   "pente": 0.03044461414579051,
+   "bruit_p99_m3h": 1.9561440002918247,
+   "fuites_au_dessus_du_bruit": 0.065,
+   "bilan_median_fuites_m3h": 0.16410720348358154,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 247.93175411224365,
+  "heure": "2026-10-28T14:27:27+00:00"
+ },
+ {
+  "etape": 18,
+  "train": {
+   "q_brute": 0.016055184390512702,
+   "q_equilibree": 0.018800825769737208,
+   "fuite_brute": 0.19455116331733063,
+   "fuite_equilibree": 0.14053310536315425,
+   "totale": 0.07966696566379652
+  },
+  "validation": {
+   "q_brute": 0.02093998227889339,
+   "q_equilibree": 0.024520986371984084,
+   "fuite_brute": 1.9251982025802135,
+   "fuite_equilibree": 1.3906577315181494,
+   "totale": 0.7075893629652759
+  },
+  "classement_validation": {
+   "1": 0.375,
+   "5": 0.7286324786324786,
+   "10": 0.8269230769230769
+  },
+  "bilan_validation": {
+   "pente": 0.0419567406560376,
+   "bruit_p99_m3h": 2.0744119715690617,
+   "fuites_au_dessus_du_bruit": 0.06166666666666667,
+   "bilan_median_fuites_m3h": 0.2459549978375435,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 247.66471886634827,
+  "heure": "2026-10-28T14:31:35+00:00"
+ },
+ {
+  "etape": 19,
+  "train": {
+   "q_brute": 0.017618797094277713,
+   "q_equilibree": 0.020631836176566457,
+   "fuite_brute": 0.20082530028146245,
+   "fuite_equilibree": 0.1450651983981547,
+   "totale": 0.08284851718855941
+  },
+  "validation": {
+   "q_brute": 0.020718108831594386,
+   "q_equilibree": 0.024261169725408156,
+   "fuite_brute": 2.2074461022391914,
+   "fuite_equilibree": 1.5945381770220897,
+   "totale": 0.8093996859466036
+  },
+  "classement_validation": {
+   "1": 0.391025641025641,
+   "5": 0.7564102564102563,
+   "10": 0.8290598290598291
+  },
+  "bilan_validation": {
+   "pente": 0.03105387425535478,
+   "bruit_p99_m3h": 1.9476560497283957,
+   "fuites_au_dessus_du_bruit": 0.05333333333333334,
+   "bilan_median_fuites_m3h": 0.08247141912579536,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.31701827049255,
+  "heure": "2026-10-28T14:35:43+00:00"
+ },
+ {
+  "etape": 20,
+  "train": {
+   "q_brute": 0.015689725119458594,
+   "q_equilibree": 0.018372868327019006,
+   "fuite_brute": 0.18065150241488995,
+   "fuite_equilibree": 0.13049275172793348,
+   "totale": 0.07443280999427257
+  },
+  "validation": {
+   "q_brute": 0.019747745369871457,
+   "q_equilibree": 0.023124861794834337,
+   "fuite_brute": 1.8624433271897336,
+   "fuite_equilibree": 1.345327061228454,
+   "totale": 0.6842259600137671
+  },
+  "classement_validation": {
+   "1": 0.375,
+   "5": 0.7393162393162392,
+   "10": 0.84508547008547
+  },
+  "bilan_validation": {
+   "pente": 0.04092925131288407,
+   "bruit_p99_m3h": 2.209436461925509,
+   "fuites_au_dessus_du_bruit": 0.075,
+   "bilan_median_fuites_m3h": 0.1860540211200714,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.1222755908966,
+  "heure": "2026-10-28T14:39:51+00:00"
+ },
+ {
+  "etape": 21,
+  "train": {
+   "q_brute": 0.015413218102539364,
+   "q_equilibree": 0.01804907505440971,
+   "fuite_brute": 0.17300685465335847,
+   "fuite_equilibree": 0.12497067667867827,
+   "totale": 0.07150987588840982
+  },
+  "validation": {
+   "q_brute": 0.02040063957683742,
+   "q_equilibree": 0.023889409083252152,
+   "fuite_brute": 2.031302370224148,
+   "fuite_equilibree": 1.4673015914546947,
+   "totale": 0.7455954994695883
+  },
+  "classement_validation": {
+   "1": 0.46794871794871795,
+   "5": 0.75,
+   "10": 0.8376068376068375
+  },
+  "bilan_validation": {
+   "pente": 0.016983260401492995,
+   "bruit_p99_m3h": 1.8661000084877026,
+   "fuites_au_dessus_du_bruit": 0.04833333333333333,
+   "bilan_median_fuites_m3h": -0.002442368306219578,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 248.12033820152283,
+  "heure": "2026-10-28T14:44:00+00:00"
+ },
+ {
+  "etape": 22,
+  "train": {
+   "q_brute": 0.015742977191896542,
+   "q_equilibree": 0.018435227169614772,
+   "fuite_brute": 0.17257520963964254,
+   "fuite_equilibree": 0.12465888015925884,
+   "totale": 0.07154705366038758
+  },
+  "validation": {
+   "q_brute": 0.018384981558968623,
+   "q_equilibree": 0.021529047889634965,
+   "fuite_brute": 2.627500301847855,
+   "fuite_equilibree": 1.897962316001455,
+   "totale": 0.9597456694891056
+  },
+  "classement_validation": {
+   "1": 0.36217948717948717,
+   "5": 0.7051282051282052,
+   "10": 0.8183760683760684
+  },
+  "bilan_validation": {
+   "pente": 0.021786033297374115,
+   "bruit_p99_m3h": 1.7107868766784702,
+   "fuites_au_dessus_du_bruit": 0.04833333333333333,
+   "bilan_median_fuites_m3h": 0.14737538993358612,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 247.91532492637634,
+  "heure": "2026-10-28T14:48:08+00:00"
+ },
+ {
+  "etape": 23,
+  "train": {
+   "q_brute": 0.015380239509370015,
+   "q_equilibree": 0.0180104567013357,
+   "fuite_brute": 0.15983677686556527,
+   "fuite_equilibree": 0.11545733376689579,
+   "totale": 0.06673389530700186
+  },
+  "validation": {
+   "q_brute": 0.017493771909115215,
+   "q_equilibree": 0.02048543014874061,
+   "fuite_brute": 2.581554488868763,
+   "fuite_equilibree": 1.8647735830706855,
+   "totale": 0.9426295084568361
+  },
+  "classement_validation": {
+   "1": 0.43055555555555547,
+   "5": 0.7190170940170939,
+   "10": 0.8194444444444444
+  },
+  "bilan_validation": {
+   "pente": 0.02920902152606426,
+   "bruit_p99_m3h": 1.7713227355480217,
+   "fuites_au_dessus_du_bruit": 0.06,
+   "bilan_median_fuites_m3h": 0.07114264741539955,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 247.74415016174316,
+  "heure": "2026-10-28T14:52:15+00:00"
+ },
+ {
+  "etape": 24,
+  "train": {
+   "q_brute": 0.015432234397562949,
+   "q_equilibree": 0.018071343404767307,
+   "fuite_brute": 0.1515557258543761,
+   "fuite_equilibree": 0.10947555605484091,
+   "totale": 0.06377344962695371
+  },
+  "validation": {
+   "q_brute": 0.019041238895927865,
+   "q_equilibree": 0.022297533803309004,
+   "fuite_brute": 2.054468215132753,
+   "fuite_equilibree": 1.4840353194468965,
+   "totale": 0.7531664299468199
+  },
+  "classement_validation": {
+   "1": 0.375,
+   "5": 0.7638888888888888,
+   "10": 0.8482905982905982
+  },
+  "bilan_validation": {
+   "pente": 0.01258131787048341,
+   "bruit_p99_m3h": 1.8333675837516832,
+   "fuites_au_dessus_du_bruit": 0.05333333333333334,
+   "bilan_median_fuites_m3h": -0.0131805669516325,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 247.82132387161255,
+  "heure": "2026-10-28T14:56:23+00:00"
+ },
+ {
+  "etape": 25,
+  "train": {
+   "q_brute": 0.015428177449809162,
+   "q_equilibree": 0.018066592661660302,
+   "fuite_brute": 0.15977293258687206,
+   "fuite_equilibree": 0.11541121631056817,
+   "totale": 0.06673890443407501
+  },
+  "validation": {
+   "q_brute": 0.01785403930892547,
+   "q_equilibree": 0.020907307819773752,
+   "fuite_brute": 3.217544376136114,
+   "fuite_equilibree": 2.324177860328928,
+   "totale": 1.1725425645553817
+  },
+  "classement_validation": {
+   "1": 0.4519230769230769,
+   "5": 0.751068376068376,
+   "10": 0.8258547008547007
+  },
+  "bilan_validation": {
+   "pente": 0.0183033028312601,
+   "bruit_p99_m3h": 1.9469152390956888,
+   "fuites_au_dessus_du_bruit": 0.06666666666666667,
+   "bilan_median_fuites_m3h": 0.05367452837526798,
+   "fuite_mediane_m3h": 11.158674716949463
+  },
+  "secondes": 225.08168983459473,
+  "heure": "2026-10-28T15:00:08+00:00"
+ }
+]

@@ -1,0 +1,527 @@
+[
+ {
+  "etape": 1,
+  "train": {
+   "fuite_brute": 1.2316060725984903,
+   "fuite_equilibree": 0.8896447778775775,
+   "totale": 0.8896447778775775
+  },
+  "validation": {
+   "fuite_brute": 1.0964728047450383,
+   "fuite_equilibree": 0.7920319028198719,
+   "totale": 0.7920319028198719
+  },
+  "classement_validation": {
+   "1": 0.4401709401709401,
+   "5": 0.5972222222222222,
+   "10": 0.6613247863247863
+  },
+  "bilan_validation": null,
+  "secondes": 253.00134205818176,
+  "heure": "2026-10-28T13:21:20+00:00"
+ },
+ {
+  "etape": 2,
+  "train": {
+   "fuite_brute": 0.8492442064194216,
+   "fuite_equilibree": 0.6134475049976673,
+   "totale": 0.6134475049976673
+  },
+  "validation": {
+   "fuite_brute": 0.7666540313512087,
+   "fuite_equilibree": 0.5537888849774997,
+   "totale": 0.5537888849774997
+  },
+  "classement_validation": {
+   "1": 0.47115384615384615,
+   "5": 0.7147435897435898,
+   "10": 0.7777777777777778
+  },
+  "bilan_validation": null,
+  "secondes": 251.85180187225342,
+  "heure": "2026-10-28T13:25:32+00:00"
+ },
+ {
+  "etape": 3,
+  "train": {
+   "fuite_brute": 0.624693374408202,
+   "fuite_equilibree": 0.4512442819153269,
+   "totale": 0.4512442819153269
+  },
+  "validation": {
+   "fuite_brute": 0.6618611462414264,
+   "fuite_equilibree": 0.4780922437707583,
+   "totale": 0.4780922437707583
+  },
+  "classement_validation": {
+   "1": 0.46901709401709396,
+   "5": 0.7243589743589743,
+   "10": 0.7745726495726496
+  },
+  "bilan_validation": null,
+  "secondes": 251.55151844024658,
+  "heure": "2026-10-28T13:29:43+00:00"
+ },
+ {
+  "etape": 4,
+  "train": {
+   "fuite_brute": 0.5035960870733723,
+   "fuite_equilibree": 0.3637702326873595,
+   "totale": 0.3637702326873595
+  },
+  "validation": {
+   "fuite_brute": 0.7130730102459589,
+   "fuite_equilibree": 0.5150848890965184,
+   "totale": 0.5150848890965184
+  },
+  "classement_validation": {
+   "1": 0.4893162393162393,
+   "5": 0.6741452991452991,
+   "10": 0.7425213675213674
+  },
+  "bilan_validation": null,
+  "secondes": 251.98515033721924,
+  "heure": "2026-10-28T13:33:55+00:00"
+ },
+ {
+  "etape": 5,
+  "train": {
+   "fuite_brute": 0.45361289935600424,
+   "fuite_equilibree": 0.3276651156290124,
+   "totale": 0.3276651156290124
+  },
+  "validation": {
+   "fuite_brute": 0.7118345046415925,
+   "fuite_equilibree": 0.5141902613764008,
+   "totale": 0.5141902613764008
+  },
+  "classement_validation": {
+   "1": 0.47435897435897434,
+   "5": 0.7403846153846154,
+   "10": 0.7948717948717948
+  },
+  "bilan_validation": null,
+  "secondes": 251.7128622531891,
+  "heure": "2026-10-28T13:38:07+00:00"
+ },
+ {
+  "etape": 6,
+  "train": {
+   "fuite_brute": 0.42938342990560663,
+   "fuite_equilibree": 0.3101630726984392,
+   "totale": 0.3101630726984392
+  },
+  "validation": {
+   "fuite_brute": 0.6102911246319612,
+   "fuite_equilibree": 0.44084088370824853,
+   "totale": 0.44084088370824853
+  },
+  "classement_validation": {
+   "1": 0.44871794871794873,
+   "5": 0.6837606837606837,
+   "10": 0.7339743589743589
+  },
+  "bilan_validation": null,
+  "secondes": 251.26547503471375,
+  "heure": "2026-10-28T13:42:19+00:00"
+ },
+ {
+  "etape": 7,
+  "train": {
+   "fuite_brute": 0.3896489931891362,
+   "fuite_equilibree": 0.28146109318671125,
+   "totale": 0.28146109318671125
+  },
+  "validation": {
+   "fuite_brute": 0.7786447698250413,
+   "fuite_equilibree": 0.5624503299593926,
+   "totale": 0.5624503299593926
+  },
+  "classement_validation": {
+   "1": 0.4551282051282051,
+   "5": 0.6955128205128205,
+   "10": 0.7670940170940171
+  },
+  "bilan_validation": null,
+  "secondes": 251.54236340522766,
+  "heure": "2026-10-28T13:46:30+00:00"
+ },
+ {
+  "etape": 8,
+  "train": {
+   "fuite_brute": 0.39284014101657605,
+   "fuite_equilibree": 0.28376620291318333,
+   "totale": 0.28376620291318333
+  },
+  "validation": {
+   "fuite_brute": 0.8335872618481517,
+   "fuite_equilibree": 0.6021377878263593,
+   "totale": 0.6021377878263593
+  },
+  "classement_validation": {
+   "1": 0.45299145299145294,
+   "5": 0.6762820512820513,
+   "10": 0.7660256410256411
+  },
+  "bilan_validation": null,
+  "secondes": 251.4134442806244,
+  "heure": "2026-10-28T13:50:42+00:00"
+ },
+ {
+  "etape": 9,
+  "train": {
+   "fuite_brute": 0.36151536166047055,
+   "fuite_equilibree": 0.26113889798418516,
+   "totale": 0.26113889798418516
+  },
+  "validation": {
+   "fuite_brute": 0.7448529085765282,
+   "fuite_equilibree": 0.538040947727859,
+   "totale": 0.538040947727859
+  },
+  "classement_validation": {
+   "1": 0.45299145299145294,
+   "5": 0.6923076923076923,
+   "10": 0.7628205128205128
+  },
+  "bilan_validation": null,
+  "secondes": 251.08578395843506,
+  "heure": "2026-10-28T13:54:53+00:00"
+ },
+ {
+  "etape": 10,
+  "train": {
+   "fuite_brute": 0.3374581014116605,
+   "fuite_equilibree": 0.24376125012834868,
+   "totale": 0.24376125012834868
+  },
+  "validation": {
+   "fuite_brute": 0.7072282352795204,
+   "fuite_equilibree": 0.5108629453927278,
+   "totale": 0.5108629453927278
+  },
+  "classement_validation": {
+   "1": 0.40598290598290593,
+   "5": 0.6987179487179487,
+   "10": 0.782051282051282
+  },
+  "bilan_validation": null,
+  "secondes": 251.62311601638794,
+  "heure": "2026-10-28T13:59:04+00:00"
+ },
+ {
+  "etape": 11,
+  "train": {
+   "fuite_brute": 0.34718682021937436,
+   "fuite_equilibree": 0.25078874487533337,
+   "totale": 0.25078874487533337
+  },
+  "validation": {
+   "fuite_brute": 0.8869093970706066,
+   "fuite_equilibree": 0.6406547715887427,
+   "totale": 0.6406547715887427
+  },
+  "classement_validation": {
+   "1": 0.4198717948717949,
+   "5": 0.7136752136752137,
+   "10": 0.767094017094017
+  },
+  "bilan_validation": null,
+  "secondes": 251.85578227043152,
+  "heure": "2026-10-28T14:03:16+00:00"
+ },
+ {
+  "etape": 12,
+  "train": {
+   "fuite_brute": 0.32967449724674225,
+   "fuite_equilibree": 0.2381388018062959,
+   "totale": 0.2381388018062959
+  },
+  "validation": {
+   "fuite_brute": 0.8297730208685,
+   "fuite_equilibree": 0.599382578705748,
+   "totale": 0.599382578705748
+  },
+  "classement_validation": {
+   "1": 0.45726495726495725,
+   "5": 0.6965811965811965,
+   "10": 0.7681623931623931
+  },
+  "bilan_validation": null,
+  "secondes": 251.65236258506775,
+  "heure": "2026-10-28T14:07:28+00:00"
+ },
+ {
+  "etape": 13,
+  "train": {
+   "fuite_brute": 0.31180434787852895,
+   "fuite_equilibree": 0.22523038433347312,
+   "totale": 0.22523038433347312
+  },
+  "validation": {
+   "fuite_brute": 0.9096413794284065,
+   "fuite_equilibree": 0.6570751134927074,
+   "totale": 0.6570751134927074
+  },
+  "classement_validation": {
+   "1": 0.39316239316239315,
+   "5": 0.7115384615384616,
+   "10": 0.7809829059829059
+  },
+  "bilan_validation": null,
+  "secondes": 251.5372178554535,
+  "heure": "2026-10-28T14:11:40+00:00"
+ },
+ {
+  "etape": 14,
+  "train": {
+   "fuite_brute": 0.3085542412526492,
+   "fuite_equilibree": 0.2228826855878449,
+   "totale": 0.2228826855878449
+  },
+  "validation": {
+   "fuite_brute": 1.0115751010986667,
+   "fuite_equilibree": 0.7307064547824363,
+   "totale": 0.7307064547824363
+  },
+  "classement_validation": {
+   "1": 0.4091880341880342,
+   "5": 0.6538461538461539,
+   "10": 0.7094017094017093
+  },
+  "bilan_validation": null,
+  "secondes": 251.66839480400085,
+  "heure": "2026-10-28T14:15:51+00:00"
+ },
+ {
+  "etape": 15,
+  "train": {
+   "fuite_brute": 0.30573834675467676,
+   "fuite_equilibree": 0.22084863781411615,
+   "totale": 0.22084863781411615
+  },
+  "validation": {
+   "fuite_brute": 1.0883009732390443,
+   "fuite_equilibree": 0.7861290188195805,
+   "totale": 0.7861290188195805
+  },
+  "classement_validation": {
+   "1": 0.3258547008547008,
+   "5": 0.735042735042735,
+   "10": 0.8012820512820512
+  },
+  "bilan_validation": null,
+  "secondes": 251.5100440979004,
+  "heure": "2026-10-28T14:20:03+00:00"
+ },
+ {
+  "etape": 16,
+  "train": {
+   "fuite_brute": 0.3035111736713184,
+   "fuite_equilibree": 0.21923985006287694,
+   "totale": 0.21923985006287694
+  },
+  "validation": {
+   "fuite_brute": 1.0359864878157774,
+   "fuite_equilibree": 0.7483398996914427,
+   "totale": 0.7483398996914427
+  },
+  "classement_validation": {
+   "1": 0.4465811965811965,
+   "5": 0.7777777777777778,
+   "10": 0.8311965811965811
+  },
+  "bilan_validation": null,
+  "secondes": 251.54015946388245,
+  "heure": "2026-10-28T14:24:15+00:00"
+ },
+ {
+  "etape": 17,
+  "train": {
+   "fuite_brute": 0.2873742843633292,
+   "fuite_equilibree": 0.20758344428968264,
+   "totale": 0.20758344428968264
+  },
+  "validation": {
+   "fuite_brute": 1.2167841731881102,
+   "fuite_equilibree": 0.8789382558005552,
+   "totale": 0.8789382558005552
+  },
+  "classement_validation": {
+   "1": 0.41239316239316237,
+   "5": 0.7329059829059829,
+   "10": 0.8119658119658119
+  },
+  "bilan_validation": null,
+  "secondes": 252.10699248313904,
+  "heure": "2026-10-28T14:28:27+00:00"
+ },
+ {
+  "etape": 18,
+  "train": {
+   "fuite_brute": 0.27360140233200725,
+   "fuite_equilibree": 0.19763466855027684,
+   "totale": 0.19763466855027684
+  },
+  "validation": {
+   "fuite_brute": 1.0460848790903887,
+   "fuite_equilibree": 0.7556344139079253,
+   "totale": 0.7556344139079253
+  },
+  "classement_validation": {
+   "1": 0.29059829059829057,
+   "5": 0.7136752136752137,
+   "10": 0.7959401709401709
+  },
+  "bilan_validation": null,
+  "secondes": 252.13071298599243,
+  "heure": "2026-10-28T14:32:39+00:00"
+ },
+ {
+  "etape": 19,
+  "train": {
+   "fuite_brute": 0.2681076092024644,
+   "fuite_equilibree": 0.19366625357522732,
+   "totale": 0.19366625357522732
+  },
+  "validation": {
+   "fuite_brute": 1.1674532493576408,
+   "fuite_equilibree": 0.8433042866798739,
+   "totale": 0.8433042866798739
+  },
+  "classement_validation": {
+   "1": 0.3835470085470085,
+   "5": 0.7425213675213674,
+   "10": 0.8098290598290597
+  },
+  "bilan_validation": null,
+  "secondes": 251.36195755004883,
+  "heure": "2026-10-28T14:36:50+00:00"
+ },
+ {
+  "etape": 20,
+  "train": {
+   "fuite_brute": 0.2330279614273652,
+   "fuite_equilibree": 0.16832663695034683,
+   "totale": 0.16832663695034683
+  },
+  "validation": {
+   "fuite_brute": 1.354326194121192,
+   "fuite_equilibree": 0.9782910674499968,
+   "totale": 0.9782910674499968
+  },
+  "classement_validation": {
+   "1": 0.4423076923076923,
+   "5": 0.7339743589743589,
+   "10": 0.7980769230769231
+  },
+  "bilan_validation": null,
+  "secondes": 251.9000358581543,
+  "heure": "2026-10-28T14:41:02+00:00"
+ },
+ {
+  "etape": 21,
+  "train": {
+   "fuite_brute": 0.25287900942688185,
+   "fuite_equilibree": 0.18266594589739624,
+   "totale": 0.18266594589739624
+  },
+  "validation": {
+   "fuite_brute": 1.0975783792634806,
+   "fuite_equilibree": 0.7928305134332428,
+   "totale": 0.7928305134332428
+  },
+  "classement_validation": {
+   "1": 0.41559829059829057,
+   "5": 0.7168803418803419,
+   "10": 0.813034188034188
+  },
+  "bilan_validation": null,
+  "secondes": 251.574373960495,
+  "heure": "2026-10-28T14:45:14+00:00"
+ },
+ {
+  "etape": 22,
+  "train": {
+   "fuite_brute": 0.2693898150852571,
+   "fuite_equilibree": 0.19459244901210898,
+   "totale": 0.19459244901210898
+  },
+  "validation": {
+   "fuite_brute": 1.2658161732678612,
+   "fuite_equilibree": 0.9143562810185055,
+   "totale": 0.9143562810185055
+  },
+  "classement_validation": {
+   "1": 0.36645299145299143,
+   "5": 0.7168803418803419,
+   "10": 0.8108974358974359
+  },
+  "bilan_validation": null,
+  "secondes": 252.17076539993286,
+  "heure": "2026-10-28T14:49:26+00:00"
+ },
+ {
+  "etape": 23,
+  "train": {
+   "fuite_brute": 0.26395993552998537,
+   "fuite_equilibree": 0.19067020124445358,
+   "totale": 0.19067020124445358
+  },
+  "validation": {
+   "fuite_brute": 1.4779277806480726,
+   "fuite_equilibree": 1.0675740902932982,
+   "totale": 1.0675740902932982
+  },
+  "classement_validation": {
+   "1": 0.3985042735042735,
+   "5": 0.7564102564102564,
+   "10": 0.8108974358974358
+  },
+  "bilan_validation": null,
+  "secondes": 251.52972865104675,
+  "heure": "2026-10-28T14:53:38+00:00"
+ },
+ {
+  "etape": 24,
+  "train": {
+   "fuite_brute": 0.2570230428439875,
+   "fuite_equilibree": 0.18565936984183887,
+   "totale": 0.18565936984183887
+  },
+  "validation": {
+   "fuite_brute": 1.1962662503744166,
+   "fuite_equilibree": 0.8641172281155983,
+   "totale": 0.8641172281155983
+  },
+  "classement_validation": {
+   "1": 0.4423076923076923,
+   "5": 0.7286324786324786,
+   "10": 0.8002136752136751
+  },
+  "bilan_validation": null,
+  "secondes": 251.68829727172852,
+  "heure": "2026-10-28T14:57:49+00:00"
+ },
+ {
+  "etape": 25,
+  "train": {
+   "fuite_brute": 0.2612419094508275,
+   "fuite_equilibree": 0.18870684795845777,
+   "totale": 0.18870684795845777
+  },
+  "validation": {
+   "fuite_brute": 1.263745336731275,
+   "fuite_equilibree": 0.9128604107846816,
+   "totale": 0.9128604107846816
+  },
+  "classement_validation": {
+   "1": 0.3867521367521367,
+   "5": 0.7457264957264957,
+   "10": 0.8279914529914532
+  },
+  "bilan_validation": null,
+  "secondes": 141.30060648918152,
+  "heure": "2026-10-28T15:00:11+00:00"
+ }
+]

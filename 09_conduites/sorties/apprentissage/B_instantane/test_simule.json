@@ -1,0 +1,17 @@
+{
+ "rayon_m": 300.0,
+ "instants_avec_fuite": 174,
+ "rappel_top_k": {
+  "1": 0.5900383141762452,
+  "5": 0.7950191570881225,
+  "10": 0.8160919540229885
+ },
+ "hasard_top_k": {
+  "1": 0.05244173493363813,
+  "5": 0.23413880348092747,
+  "10": 0.4096334102530512
+ },
+ "convention": "fraction des fuites couvertes, moyenne par instant positif ; au moins un candidat a distance <= rayon ; egalites : esperance du tirage uniforme",
+ "reference_hasard": "k conduites uniformes sans remise parmi les memes candidates",
+ "unite": "localisation horaire retrospective, pas detection d'evenements ni interventions"
+}

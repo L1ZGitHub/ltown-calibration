@@ -1,0 +1,15 @@
+B : données lues en 105 s ; fenêtres 39040 / 4880
+B étape 1 : train 0.6151, validation 0.4577 (484 s)
+B étape 2 : train 0.2996, validation 0.6092 (483 s)
+B étape 3 : train 0.2447, validation 0.5142 (483 s)
+B étape 4 : train 0.2173, validation 0.5767 (484 s)
+B étape 5 : train 0.1970, validation 0.8359 (484 s)
+B étape 6 : train 0.1832, validation 0.8343 (484 s)
+B étape 7 : train 0.1650, validation 0.9262 (484 s)
+B étape 8 : train 0.1579, validation 0.8249 (484 s)
+B étape 9 : train 0.1434, validation 1.3697 (484 s)
+B étape 10 : train 0.1423, validation 1.0869 (483 s)
+B étape 11 : train 0.1271, validation 0.9516 (483 s)
+B étape 12 : train 0.1278, validation 1.4496 (199 s)
+B : apprentissage fini, meilleure étape 1
+B : 2018 et test faits ; test top-1 à 300 m 0.540 (hasard 0.052)

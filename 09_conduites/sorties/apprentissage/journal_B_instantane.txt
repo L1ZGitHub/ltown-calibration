@@ -1,0 +1,15 @@
+B_instantane : données lues en 120 s ; fenêtres 39040 / 4880
+B_instantane étape 1 : train 0.6179, validation 0.5353 (483 s)
+B_instantane étape 2 : train 0.3266, validation 0.7092 (483 s)
+B_instantane étape 3 : train 0.2902, validation 0.6841 (483 s)
+B_instantane étape 4 : train 0.2539, validation 0.8313 (483 s)
+B_instantane étape 5 : train 0.2303, validation 0.9827 (482 s)
+B_instantane étape 6 : train 0.2071, validation 1.1501 (483 s)
+B_instantane étape 7 : train 0.1950, validation 1.0016 (483 s)
+B_instantane étape 8 : train 0.1761, validation 1.0434 (483 s)
+B_instantane étape 9 : train 0.1662, validation 1.5416 (483 s)
+B_instantane étape 10 : train 0.1602, validation 1.4360 (483 s)
+B_instantane étape 11 : train 0.1509, validation 1.9761 (483 s)
+B_instantane étape 12 : train 0.1317, validation 1.8803 (133 s)
+B_instantane : apprentissage fini, meilleure étape 1
+B_instantane : 2018 et test faits ; test top-1 à 300 m 0.590 (hasard 0.052)

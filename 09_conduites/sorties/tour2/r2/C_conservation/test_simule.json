@@ -1,0 +1,25 @@
+{
+ "rayon_m": 300.0,
+ "instants_avec_fuite": 215,
+ "rappel_top_k": {
+  "1": 0.5589147286821705,
+  "5": 0.7395348837209302,
+  "10": 0.8294573643410853
+ },
+ "hasard_top_k": {
+  "1": 0.044186046511627906,
+  "5": 0.200488313870159,
+  "10": 0.35732766282394335
+ },
+ "convention": "fraction des fuites couvertes, moyenne par instant positif ; au moins un candidat a distance <= rayon ; egalites : esperance du tirage uniforme",
+ "reference_hasard": "k conduites uniformes sans remise parmi les memes candidates",
+ "unite": "localisation horaire retrospective, pas detection d'evenements ni interventions",
+ "bilan": {
+  "pente": -0.000724074616128238,
+  "bruit_p99_m3h": 0.14594624996185285,
+  "fuites_au_dessus_du_bruit": 0.009523809523809525,
+  "bilan_median_fuites_m3h": 0.005447717383503914,
+  "fuite_mediane_m3h": 11.494498252868652
+ },
+ "etape": 8
+}

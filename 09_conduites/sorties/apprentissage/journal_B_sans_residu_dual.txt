@@ -1,0 +1,15 @@
+B_sans_residu_dual : données lues en 120 s ; fenêtres 39040 / 4880
+B_sans_residu_dual étape 1 : train 0.9963, validation 1.1267 (484 s)
+B_sans_residu_dual étape 2 : train 0.9495, validation 1.1922 (483 s)
+B_sans_residu_dual étape 3 : train 0.8983, validation 1.1816 (483 s)
+B_sans_residu_dual étape 4 : train 0.6740, validation 1.2591 (483 s)
+B_sans_residu_dual étape 5 : train 0.5505, validation 1.5501 (483 s)
+B_sans_residu_dual étape 6 : train 0.4708, validation 1.5534 (483 s)
+B_sans_residu_dual étape 7 : train 0.3991, validation 1.7426 (483 s)
+B_sans_residu_dual étape 8 : train 0.3420, validation 2.7335 (483 s)
+B_sans_residu_dual étape 9 : train 0.2988, validation 3.4835 (483 s)
+B_sans_residu_dual étape 10 : train 0.2658, validation 3.2132 (483 s)
+B_sans_residu_dual étape 11 : train 0.2508, validation 3.4422 (483 s)
+B_sans_residu_dual étape 12 : train 0.2279, validation 4.2953 (126 s)
+B_sans_residu_dual : apprentissage fini, meilleure étape 1
+B_sans_residu_dual : 2018 et test faits ; test top-1 à 300 m 0.033 (hasard 0.052)
